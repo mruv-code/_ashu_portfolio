@@ -29,11 +29,6 @@ const Work = () => {
   const handleCloseVideo = () => {
     setSelectedVideoUrl(null);
   };
-      URL.revokeObjectURL(objectUrl);
-      setObjectUrl(null);
-    }
-    setSelectedVideoUrl(null);
-  };
 
   return (
     <div className="pt-32 pb-20 px-6 md:px-12 bg-black min-h-screen">
