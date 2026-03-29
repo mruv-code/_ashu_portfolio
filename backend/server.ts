@@ -583,9 +583,9 @@ app.get(`${API_URL}/api/site-settings`, (req, res) => {
   res.json(websiteData.siteSettings);
 });
 
-apsaveDataToFile();
-  p.post(`${API_URL}/api/site-settings`, (req, res) => {
+app.post(`${API_URL}/api/site-settings`, (req, res) => {
   websiteData.siteSettings = req.body;
+  saveDataToFile();
   res.json({ message: 'Site settings updated', siteSettings: websiteData.siteSettings });
 });
 
