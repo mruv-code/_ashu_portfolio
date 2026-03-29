@@ -30,7 +30,25 @@ const loginLimiter = rateLimit({
 
 app.use(express.json());
 app.use(cors({
-  origin: 'https://ashu-portfolio-frontend.vercel.app', // In production, replace with your frontend URL
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://ashu-portfolio-frontend.vercel.app',
+      'http://localhost:5173', // Vite dev server
+      'http://localhost:3000', // Alternative dev port
+      'https://localhost:5173',
+      'https://localhost:3000'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma', 'Expires', 'If-Modified-Since'],
   credentials: true,
@@ -486,6 +504,17 @@ const noCacheHeaders = (req: any, res: any, next: any) => {
 // Apply no-cache headers to API responses
 app.use(`${API_URL}/api/`, noCacheHeaders);
 
+// Handle preflight OPTIONS requests for all API routes
+app.options(`${API_URL}/api/*`, (req, res) => {
+  console.log('🔄 Handling OPTIONS preflight request for:', req.path);
+  res.set('Access-Control-Allow-Origin', 'https://ashu-portfolio-frontend.vercel.app');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, Expires, If-Modified-Since');
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.set('Access-Control-Max-Age', '86400');
+  res.status(200).end();
+});
+
 // Calendar APIs
 app.get(`${API_URL}/api/calendar`, (req, res) => {
   res.json(calendarAvailability);
@@ -502,10 +531,9 @@ app.post(`${API_URL}/api/calendar`, (req, res) => {
 
 // Website Data APIs - Get all data
 app.get(`${API_URL}/api/website-data`, (req, res) => {
-  console.log('📤 Sending website data to frontend:');
-  console.log('  - Videos:', websiteData.videos?.length || 0, 'items');
-  console.log('  - Categories:', websiteData.categories?.length || 0, 'items');
-  console.log('  - Inquiries:', websiteData.inquiries?.length || 0, 'items');
+  console.log('📤 GET /api/website-data request received');
+  console.log('  - Origin:', req.headers.origin);
+  console.log('  - User-Agent:', req.headers['user-agent']?.substring(0, 50));
   
   res.set('Cache-Control', 'no-store, must-revalidate');
   res.set('ETag', JSON.stringify(websiteData).length.toString());
@@ -514,9 +542,12 @@ app.get(`${API_URL}/api/website-data`, (req, res) => {
 
 // Website Data APIs - Update all data
 app.post(`${API_URL}/api/website-data`, (req, res) => {
-  const { videos, categories, inquiries, pageContent, contactInfo, siteSettings } = req.body;
+  console.log('📥 POST /api/website-data request received');
+  console.log('  - Origin:', req.headers.origin);
+  console.log('  - Content-Type:', req.headers['content-type']);
+  console.log('  - Body size:', JSON.stringify(req.body).length, 'characters');
   
-  console.log('📥 Received data update from frontend:');
+  const { videos, categories, inquiries, pageContent, contactInfo, siteSettings } = req.body;
   console.log('  - Videos:', Array.isArray(videos) ? `${videos.length} items` : 'none');
   console.log('  - Categories:', Array.isArray(categories) ? `${categories.length} items` : 'none');
   console.log('  - Inquiries:', Array.isArray(inquiries) ? `${inquiries.length} items` : 'none');
