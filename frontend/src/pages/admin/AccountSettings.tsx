@@ -41,7 +41,7 @@ const AccountSettings = () => {
 
     try {
       // Request OTP for admin changes
-      const response = await fetch('/api/admin/request-change', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/admin/request-change', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -81,7 +81,7 @@ const AccountSettings = () => {
     setMessage(null);
 
     try {
-      const response = await fetch('/api/admin/verify-change', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/admin/verify-change', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -124,7 +124,7 @@ const AccountSettings = () => {
     setMessage(null);
 
     try {
-      const response = await fetch('/api/admin/request-change', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/admin/request-change', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

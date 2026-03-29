@@ -28,7 +28,7 @@ const loginLimiter = rateLimit({
 
 app.use(express.json());
 app.use(cors({
-  origin: '*', // In production, replace with your frontend URL
+  origin: 'https://ashu-portfolio-frontend.vercel.app', // In production, replace with your frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

@@ -20,7 +20,7 @@ const ManageContact = () => {
 
   const fetchAvailability = async () => {
     try {
-      const response = await fetch('/api/calendar');
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/calendar');
       const data = await response.json();
       setAvailability(data);
     } catch (error) {
@@ -31,7 +31,7 @@ const ManageContact = () => {
   const handleSaveCalendar = async () => {
     setIsCalendarSaving(true);
     try {
-      const response = await fetch('/api/calendar', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/calendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ availability }),

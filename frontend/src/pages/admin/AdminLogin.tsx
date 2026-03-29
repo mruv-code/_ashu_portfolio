@@ -70,7 +70,7 @@ const AdminLogin = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -106,7 +106,7 @@ const AdminLogin = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/verify-otp', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
@@ -172,7 +172,7 @@ const AdminLogin = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail }),
@@ -209,7 +209,7 @@ const AdminLogin = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail, otp, newPassword }),
