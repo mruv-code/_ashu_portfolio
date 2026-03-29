@@ -8,6 +8,7 @@ import { API_URL } from './config.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -422,7 +423,7 @@ interface CalendarAvailability {
 
 let calendarAvailability: CalendarAvailability = {};
 
-// Store for website content
+// Store for website content with file persistence
 interface WebsiteData {
   videos: any[];
   categories: any[];
@@ -432,6 +433,10 @@ interface WebsiteData {
   siteSettings: any;
 }
 
+// Data file path
+const dataFilePath = path.join(path.dirname(__filename), 'data.json');
+
+// Initialize/load website data from file
 let websiteData: WebsiteData = {
   videos: [],
   categories: [],
@@ -440,6 +445,35 @@ let websiteData: WebsiteData = {
   contactInfo: {},
   siteSettings: {}
 };
+
+// Load data from file on startup
+const loadDataFromFile = () => {
+  try {
+    if (fs.existsSync(dataFilePath)) {
+      const fileContent = fs.readFileSync(dataFilePath, 'utf8');
+      const loadedData = JSON.parse(fileContent);
+      websiteData = loadedData;
+      console.log('✓ Website data loaded from file');
+    } else {
+      console.log('ℹ No existing data file, will create one on first save');
+    }
+  } catch (error) {
+    console.error('Error loading data from file:', error);
+    // Continue with empty data if file is corrupted
+  }
+};
+
+// Save data to file
+const saveDataToFile = () => {
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(websiteData, null, 2));
+  } catch (error) {
+    console.error('Error saving data to file:', error);
+  }
+};
+
+// Load data on startup
+loadDataFromFile();
 
 // Middleware to set cache headers for dynamic content
 const noCacheHeaders = (req: any, res: any, next: any) => {
@@ -484,6 +518,7 @@ app.post(`${API_URL}/api/website-data`, (req, res) => {
   if (contactInfo) websiteData.contactInfo = contactInfo;
   if (siteSettings) websiteData.siteSettings = siteSettings;
   
+  saveDataToFile();
   res.json({ message: 'Website data updated successfully', data: websiteData });
 });
 
@@ -495,6 +530,7 @@ app.get(`${API_URL}/api/videos`, (req, res) => {
 
 app.post(`${API_URL}/api/videos`, (req, res) => {
   websiteData.videos = req.body;
+  saveDataToFile();
   res.json({ message: 'Videos updated', videos: websiteData.videos });
 });
 
@@ -504,6 +540,7 @@ app.get(`${API_URL}/api/categories`, (req, res) => {
 });
 
 app.post(`${API_URL}/api/categories`, (req, res) => {
+  saveDataToFile();
   websiteData.categories = req.body;
   res.json({ message: 'Categories updated', categories: websiteData.categories });
 });
@@ -514,6 +551,7 @@ app.get(`${API_URL}/api/inquiries`, (req, res) => {
 });
 
 app.post(`${API_URL}/api/inquiries`, (req, res) => {
+  saveDataToFile();
   websiteData.inquiries = req.body;
   res.json({ message: 'Inquiries updated', inquiries: websiteData.inquiries });
 });
@@ -524,6 +562,7 @@ app.get(`${API_URL}/api/page-content`, (req, res) => {
 });
 
 app.post(`${API_URL}/api/page-content`, (req, res) => {
+  saveDataToFile();
   websiteData.pageContent = req.body;
   res.json({ message: 'Page content updated', pageContent: websiteData.pageContent });
 });
@@ -534,6 +573,7 @@ app.get(`${API_URL}/api/contact-info`, (req, res) => {
 });
 
 app.post(`${API_URL}/api/contact-info`, (req, res) => {
+  saveDataToFile();
   websiteData.contactInfo = req.body;
   res.json({ message: 'Contact info updated', contactInfo: websiteData.contactInfo });
 });
@@ -543,7 +583,8 @@ app.get(`${API_URL}/api/site-settings`, (req, res) => {
   res.json(websiteData.siteSettings);
 });
 
-app.post(`${API_URL}/api/site-settings`, (req, res) => {
+apsaveDataToFile();
+  p.post(`${API_URL}/api/site-settings`, (req, res) => {
   websiteData.siteSettings = req.body;
   res.json({ message: 'Site settings updated', siteSettings: websiteData.siteSettings });
 });

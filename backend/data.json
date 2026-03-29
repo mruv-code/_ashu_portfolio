@@ -1,0 +1,98 @@
+{
+  "videos": [
+    {
+      "id": "1",
+      "title": "The Royal Wedding",
+      "category": "Wedding",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "thumbnail": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1000&auto=format&fit=crop",
+      "isFeatured": true
+    },
+    {
+      "id": "2",
+      "title": "Urban Lifestyle Commercial",
+      "category": "Commercial",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "thumbnail": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=1000&auto=format&fit=crop",
+      "isFeatured": true
+    },
+    {
+      "id": "3",
+      "title": "Summer Vibes - Social Edit",
+      "category": "Social Media",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "thumbnail": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=1000&auto=format&fit=crop",
+      "isFeatured": true
+    }
+  ],
+  "categories": [
+    { "id": "1", "name": "Wedding" },
+    { "id": "2", "name": "Commercial" },
+    { "id": "3", "name": "Social Media" }
+  ],
+  "inquiries": [],
+  "pageContent": {
+    "home": {
+      "tagline": "We Don't Shoot Weddings, We Craft Stories",
+      "heroVideo": "https://assets.mixkit.co/videos/preview/mixkit-wedding-couple-walking-in-a-field-of-flowers-34404-large.mp4",
+      "services": [
+        {
+          "title": "Wedding Films",
+          "description": "Cinematic storytelling for your most precious day."
+        },
+        {
+          "title": "Commercials",
+          "description": "High-end visual content for brands and businesses."
+        },
+        {
+          "title": "Social Media",
+          "description": "Engaging short-form content for modern platforms."
+        },
+        {
+          "title": "Digital Marketing & Social Media Management",
+          "description": "Comprehensive strategies to grow your online presence and engage your audience."
+        }
+      ],
+      "testimonialTag": "TESTIMONIALS",
+      "testimonialTitle": "What Our Clients Say",
+      "testimonials": [
+        {
+          "name": "Rahul & Priya",
+          "text": "Bandhan Films captured our wedding like a dream. Every frame tells a story.",
+          "role": "WEDDING COUPLE",
+          "rating": 5,
+          "image": "https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=200&auto=format&fit=crop"
+        },
+        {
+          "name": "Sarah Jenkins",
+          "text": "Working with Bandhan Films was the best decision we made for our brand launch. Their vision and execution are truly world-class.",
+          "role": "CREATIVE DIRECTOR, VOGUE",
+          "rating": 5,
+          "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop"
+        }
+      ]
+    },
+    "info": {
+      "about": "Bandhan Films is a premium video production house dedicated to cinematic excellence. With over a decade of experience, we specialize in capturing the essence of human emotions and brand stories.",
+      "founder": {
+        "name": "Aryan Sharma",
+        "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop",
+        "story": "Aryan Sharma started Bandhan Films with a single vision: to bring cinematic quality to every story. His passion for visual storytelling has led the company to become a leader in the industry."
+      },
+      "vision": "To become the most trusted name in cinematic storytelling, blending traditional values with modern visual techniques."
+    }
+  },
+  "contactInfo": {
+    "email": "hello@bandhanfilms.com",
+    "phone": "+91 98765 43210",
+    "address": "Film City, Mumbai, MH",
+    "instagram": "https://instagram.com/bandhanfilms",
+    "youtube": "https://youtube.com/bandhanfilms",
+    "facebook": "https://facebook.com/bandhanfilms",
+    "whatsapp": "+919876543210"
+  },
+  "siteSettings": {
+    "brandName": "BANDHAN FILMS",
+    "logo": ""
+  }
+}

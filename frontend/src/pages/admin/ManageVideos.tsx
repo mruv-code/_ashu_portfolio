@@ -14,18 +14,26 @@ const MediaPreview = ({ src, className }: { src: string | File, className?: stri
       setUrl(null);
       return;
     }
-    if (src instanceof File) {
-      const objectUrl = URL.createObjectURL(src);
-      setUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof src === 'string') {
-      setUrl(src || null);
+    
+    try {
+      if (src instanceof File) {
+        const objectUrl = URL.createObjectURL(src);
+        setUrl(objectUrl);
+        return () => URL.revokeObjectURL(objectUrl);
+      } else if (typeof src === 'string' && src.trim()) {
+        setUrl(src);
+      } else {
+        setUrl(null);
+      }
+    } catch (error) {
+      console.error('Error creating object URL:', error);
+      setUrl(null);
     }
   }, [src]);
 
   if (!url) return <div className={cn("bg-zinc-800", className)} />;
 
-  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" />;
+  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" onError={() => setUrl(null)} />;
 };
 
 const ManageVideos = () => {
