@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Film, Instagram, Youtube, Facebook, Mail, Phone } from 'lucide-react';
 import { useApp } from '../AppContext';
+import { toMediaUrl } from '../lib/utils';
 
 const Footer = () => {
   const { contactInfo, siteSettings } = useApp();
@@ -13,10 +14,11 @@ const Footer = () => {
           <Link to="/" className="flex items-center gap-2 mb-6">
             {siteSettings.logo ? (
               <img 
-                src={typeof siteSettings.logo === 'string' ? siteSettings.logo : URL.createObjectURL(siteSettings.logo)} 
+                src={toMediaUrl(siteSettings.logo) || ''} 
                 alt={siteSettings.brandName} 
                 className="h-10 w-auto object-contain"
                 referrerPolicy="no-referrer"
+                onError={(e) => e.currentTarget.style.display = 'none'}
               />
             ) : (
               <Film className="text-gold" size={32} />

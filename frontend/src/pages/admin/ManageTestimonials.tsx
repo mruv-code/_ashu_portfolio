@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, X, Check, Quote, MessageSquare, Star, Save } from 'lucide-react';
 import { useApp } from '../../AppContext';
+import { toMediaUrl } from '../../lib/utils';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import FileUpload from '../../components/admin/FileUpload';
 
@@ -161,9 +162,10 @@ const ManageTestimonials = () => {
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-zinc-800 border border-white/10">
                   {t.image ? (
                     <img 
-                      src={typeof t.image === 'string' ? t.image : URL.createObjectURL(t.image)} 
+                      src={toMediaUrl(t.image) || ''} 
                       alt="" 
                       className="w-full h-full object-cover"
+                      onError={(e) => e.currentTarget.style.display = 'none'}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/20">

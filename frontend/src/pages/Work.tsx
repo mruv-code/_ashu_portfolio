@@ -2,52 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, X } from 'lucide-react';
 import { useApp } from '../AppContext';
-import { cn } from '../lib/utils';
+import { cn, toMediaUrl } from '../lib/utils';
 
 const MediaPreview = ({ src, className }: { src: string | File, className?: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!src) {
-      setUrl(null);
-      return;
-    }
-    if (src instanceof File) {
-      const objectUrl = URL.createObjectURL(src);
-      setUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof src === 'string') {
-      setUrl(src || null);
-    }
-  }, [src]);
-
+  const url = toMediaUrl(src);
   if (!url) return <div className={cn("bg-zinc-800", className)} />;
-
-  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" />;
+  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" onError={(e) => e.currentTarget.style.display = 'none'} />;
 };
 
 const Work = () => {
   const { videos, categories } = useApp();
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
-  const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   const filteredVideos = activeCategory === 'All' 
     ? videos 
     : videos.filter(v => v.category === activeCategory);
 
   const handleOpenVideo = (videoUrl: string | File) => {
-    if (videoUrl instanceof File) {
-      const url = URL.createObjectURL(videoUrl);
-      setObjectUrl(url);
+    const url = toMediaUrl(videoUrl);
+    if (url) {
       setSelectedVideoUrl(url);
-    } else {
-      setSelectedVideoUrl(videoUrl);
     }
   };
 
   const handleCloseVideo = () => {
-    if (objectUrl) {
+    setSelectedVideoUrl(null);
+  };
       URL.revokeObjectURL(objectUrl);
       setObjectUrl(null);
     }

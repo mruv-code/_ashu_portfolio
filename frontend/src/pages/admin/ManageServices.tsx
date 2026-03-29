@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Edit2, X, Briefcase, Image as ImageIcon } from 'lucide-react';
 import { useApp } from '../../AppContext';
-import { cn } from '../../lib/utils';
+import { cn, toMediaUrl } from '../../lib/utils';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import FileUpload from '../../components/admin/FileUpload';
 
@@ -78,10 +78,11 @@ const ManageServices = () => {
             {service.image && (
               <div className="w-full aspect-video relative overflow-hidden">
                 <img 
-                  src={typeof service.image === 'string' ? service.image : URL.createObjectURL(service.image)} 
+                  src={toMediaUrl(service.image) || ''} 
                   alt={service.title} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   referrerPolicy="no-referrer"
+                  onError={(e) => e.currentTarget.style.display = 'none'}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
               </div>

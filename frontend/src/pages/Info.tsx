@@ -1,27 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useApp } from '../AppContext';
+import { toMediaUrl } from '../lib/utils';
 
 const MediaPreview = ({ src, className }: { src: string | File, className?: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!src) {
-      setUrl(null);
-      return;
-    }
-    if (src instanceof File) {
-      const objectUrl = URL.createObjectURL(src);
-      setUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof src === 'string') {
-      setUrl(src || null);
-    }
-  }, [src]);
-
+  const url = toMediaUrl(src);
   if (!url) return <div className={className} />;
-
-  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" />;
+  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" onError={(e) => e.currentTarget.style.display = 'none'} />;
 };
 
 const Info = () => {

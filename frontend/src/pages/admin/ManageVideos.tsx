@@ -2,38 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Star, ExternalLink, X, Check } from 'lucide-react';
 import { useApp } from '../../AppContext';
 import { Video } from '../../types';
-import { cn } from '../../lib/utils';
+import { cn, toMediaUrl } from '../../lib/utils';
 import FileUpload from '../../components/admin/FileUpload';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 const MediaPreview = ({ src, className }: { src: string | File, className?: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!src) {
-      setUrl(null);
-      return;
-    }
-    
-    try {
-      if (src instanceof File) {
-        const objectUrl = URL.createObjectURL(src);
-        setUrl(objectUrl);
-        return () => URL.revokeObjectURL(objectUrl);
-      } else if (typeof src === 'string' && src.trim()) {
-        setUrl(src);
-      } else {
-        setUrl(null);
-      }
-    } catch (error) {
-      console.error('Error creating object URL:', error);
-      setUrl(null);
-    }
-  }, [src]);
-
+  const url = toMediaUrl(src);
   if (!url) return <div className={cn("bg-zinc-800", className)} />;
-
-  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" onError={() => setUrl(null)} />;
+  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" onError={(e) => e.currentTarget.style.display = 'none'} />;
 };
 
 const ManageVideos = () => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Film } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '../lib/utils';
+import { cn, toMediaUrl } from '../lib/utils';
 import { AppContext } from '../AppContext';
 
 const Navbar = () => {
@@ -33,10 +33,11 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2 group">
           {siteSettings.logo ? (
             <img 
-              src={typeof siteSettings.logo === 'string' ? siteSettings.logo : URL.createObjectURL(siteSettings.logo)} 
+              src={toMediaUrl(siteSettings.logo) || ''} 
               alt={siteSettings.brandName} 
               className="h-8 w-auto object-contain"
               referrerPolicy="no-referrer"
+              onError={(e) => e.currentTarget.style.display = 'none'}
             />
           ) : (
             <Film className="text-gold group-hover:rotate-12 transition-transform" size={28} />

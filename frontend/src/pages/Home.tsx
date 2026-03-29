@@ -3,46 +3,16 @@ import { motion } from 'motion/react';
 import { Play, ArrowRight, Star, Quote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../AppContext';
+import { toMediaUrl } from '../lib/utils';
 
 const MediaPreview = ({ src, className }: { src: string | File, className?: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!src) {
-      setUrl(null);
-      return;
-    }
-    if (src instanceof File) {
-      const objectUrl = URL.createObjectURL(src);
-      setUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof src === 'string') {
-      setUrl(src || null);
-    }
-  }, [src]);
-
+  const url = toMediaUrl(src);
   if (!url) return <div className={className} />;
-
-  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" />;
+  return <img src={url} alt="" className={className} referrerPolicy="no-referrer" onError={(e) => e.currentTarget.style.display = 'none'} />;
 };
 
 const VideoBackground = ({ src, className }: { src: string | File, className?: string }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!src) {
-      setUrl(null);
-      return;
-    }
-    if (src instanceof File) {
-      const objectUrl = URL.createObjectURL(src);
-      setUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else if (typeof src === 'string') {
-      setUrl(src || null);
-    }
-  }, [src]);
-
+  const url = toMediaUrl(src);
   if (!url) return <div className={className} />;
 
   return (
@@ -164,10 +134,11 @@ const Home = () => {
                 {service.image && (
                   <div className="w-full aspect-[4/5] overflow-hidden relative">
                     <img 
-                      src={typeof service.image === 'string' ? service.image : URL.createObjectURL(service.image)} 
+                      src={toMediaUrl(service.image) || ''} 
                       alt={service.title} 
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100"
                       referrerPolicy="no-referrer"
+                      onError={(e) => e.currentTarget.style.display = 'none'}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                   </div>
