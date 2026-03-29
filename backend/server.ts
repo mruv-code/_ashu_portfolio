@@ -434,18 +434,6 @@ app.post(`${API_URL}/api/calendar`, (req, res) => {
   res.json({ message: 'Calendar updated successfully', availability: calendarAvailability });
 });
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  // When running from dist/server.js, __dirname is /backend/dist
-  const frontendDistPath = path.join(__dirname, '../../frontend/dist');
-  app.use(express.static(frontendDistPath));
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(frontendDistPath, 'index.html'));
-    }
-  });
-}
-
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend server running on port ${PORT}`);
   
