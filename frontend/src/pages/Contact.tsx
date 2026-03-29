@@ -36,7 +36,7 @@ const Contact = () => {
 
   const fetchAvailability = async () => {
     try {
-      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com//api/calendar');
+      const response = await fetch('https://ashu-portfolio-backend-vgnp.onrender.com/api/calendar');
       const data = await response.json();
       setAvailability(data);
     } catch (error) {
