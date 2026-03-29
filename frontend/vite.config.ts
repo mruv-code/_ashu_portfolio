@@ -22,7 +22,7 @@ export default defineConfig(({mode}) => {
       host: '0.0.0.0',
       proxy: {
         '/api': {
-          target: 'https://ashu-portfolio-backend-vgnp.onrender.com',
+          target: 'http://localhost:3001',
           changeOrigin: true,
         },
       },
