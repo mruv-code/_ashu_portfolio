@@ -502,6 +502,11 @@ app.post(`${API_URL}/api/calendar`, (req, res) => {
 
 // Website Data APIs - Get all data
 app.get(`${API_URL}/api/website-data`, (req, res) => {
+  console.log('📤 Sending website data to frontend:');
+  console.log('  - Videos:', websiteData.videos?.length || 0, 'items');
+  console.log('  - Categories:', websiteData.categories?.length || 0, 'items');
+  console.log('  - Inquiries:', websiteData.inquiries?.length || 0, 'items');
+  
   res.set('Cache-Control', 'no-store, must-revalidate');
   res.set('ETag', JSON.stringify(websiteData).length.toString());
   res.json(websiteData);
@@ -511,6 +516,14 @@ app.get(`${API_URL}/api/website-data`, (req, res) => {
 app.post(`${API_URL}/api/website-data`, (req, res) => {
   const { videos, categories, inquiries, pageContent, contactInfo, siteSettings } = req.body;
   
+  console.log('📥 Received data update from frontend:');
+  console.log('  - Videos:', Array.isArray(videos) ? `${videos.length} items` : 'none');
+  console.log('  - Categories:', Array.isArray(categories) ? `${categories.length} items` : 'none');
+  console.log('  - Inquiries:', Array.isArray(inquiries) ? `${inquiries.length} items` : 'none');
+  console.log('  - PageContent:', typeof pageContent === 'object' ? 'received' : 'none');
+  console.log('  - ContactInfo:', typeof contactInfo === 'object' ? 'received' : 'none');
+  console.log('  - SiteSettings:', typeof siteSettings === 'object' ? 'received' : 'none');
+  
   if (videos) websiteData.videos = videos;
   if (categories) websiteData.categories = categories;
   if (inquiries) websiteData.inquiries = inquiries;
@@ -519,6 +532,9 @@ app.post(`${API_URL}/api/website-data`, (req, res) => {
   if (siteSettings) websiteData.siteSettings = siteSettings;
   
   saveDataToFile();
+  console.log('✓ Data saved to file and memory');
+  
+  res.set('Cache-Control', 'no-store, must-revalidate');
   res.json({ message: 'Website data updated successfully', data: websiteData });
 });
 

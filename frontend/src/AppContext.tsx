@@ -135,6 +135,7 @@ const fetchFromBackend = async (endpoint: string) => {
 // Function to push data to backend
 const pushToBackend = async (endpoint: string, method: string, data: any) => {
   try {
+    console.log(`Syncing data to ${endpoint}...`);
     const response = await fetch(`${API_URL}${endpoint}`, {
       method,
       headers: {
@@ -144,13 +145,19 @@ const pushToBackend = async (endpoint: string, method: string, data: any) => {
     });
     
     if (!response.ok) {
-      console.warn(`Failed to sync to ${endpoint}:`, response.status);
+      console.error(`Failed to sync to ${endpoint}: HTTP ${response.status}`);
+      console.error('Response:', await response.text());
+      return false;
     } else {
+      const responseData = await response.json();
+      console.log(`✓ Data synced to backend:`, responseData);
       // Update last sync time
       sessionStorage.setItem('bandhan_last_sync', Date.now().toString());
+      return true;
     }
   } catch (error) {
-    console.warn(`Error syncing to ${endpoint}:`, error);
+    console.error(`Error syncing to ${endpoint}:`, error);
+    return false;
   }
 };
 
@@ -165,23 +172,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load data on mount - fetch from backend first, then fallback to IndexedDB
+  // Load data on mount - fetch from backend with proper error handling
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Try to fetch from backend first with cache busting
-        const backendData = await fetchFromBackend('/api/website-data');
+        // Always try to fetch from backend FIRST - no IndexedDB fallback initially
+        let backendData = null;
+        try {
+          backendData = await fetchFromBackend('/api/website-data');
+          console.log('Backend data fetched:', backendData);
+        } catch (error) {
+          console.warn('Backend fetch failed, trying again...', error);
+          // Retry once if first attempt fails
+          backendData = await fetchFromBackend('/api/website-data');
+        }
         
-        if (backendData && Object.keys(backendData).length > 0) {
-          // Use backend data if available
-          if (backendData.videos?.length > 0) setVideos(backendData.videos);
-          if (backendData.categories?.length > 0) setCategories(backendData.categories);
-          if (backendData.inquiries?.length > 0) setInquiries(backendData.inquiries);
-          if (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) setPageContent(backendData.pageContent);
-          if (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) setContactInfo(backendData.contactInfo);
-          if (backendData.siteSettings && Object.keys(backendData.siteSettings).length > 0) setSiteSettings(backendData.siteSettings);
+        // Use backend data if it has content
+        if (backendData && typeof backendData === 'object') {
+          if (backendData.videos && Array.isArray(backendData.videos)) setVideos(backendData.videos);
+          if (backendData.categories && Array.isArray(backendData.categories)) setCategories(backendData.categories);
+          if (backendData.inquiries && Array.isArray(backendData.inquiries)) setInquiries(backendData.inquiries);
+          if (backendData.pageContent && typeof backendData.pageContent === 'object') setPageContent(backendData.pageContent);
+          if (backendData.contactInfo && typeof backendData.contactInfo === 'object') setContactInfo(backendData.contactInfo);
+          if (backendData.siteSettings && typeof backendData.siteSettings === 'object') setSiteSettings(backendData.siteSettings);
+          console.log('✓ Website data loaded from backend');
         } else {
-          // Fallback to IndexedDB if backend is empty
+          console.log('No valid backend data, loading from IndexedDB...');
+          // Fallback to IndexedDB if backend fails
           const savedVideos = await get('bandhan_videos');
           const savedCategories = await get('bandhan_categories');
           const savedInquiries = await get('bandhan_inquiries');
@@ -202,6 +219,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               ...savedAdmin
             });
           }
+          console.log('✓ Website data loaded from IndexedDB (backend unavailable)');
         }
 
         const savedIsAdmin = localStorage.getItem('bandhan_isAdmin') === 'true';
@@ -269,7 +287,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await set('bandhan_admin', adminSettings);
 
         // Sync to backend
-        await pushToBackend('/api/website-data', 'POST', {
+        const syncSuccess = await pushToBackend('/api/website-data', 'POST', {
           videos,
           categories,
           inquiries,
@@ -277,6 +295,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           contactInfo,
           siteSettings
         });
+        
+        // After successful sync to backend, trigger a refresh in 1 second
+        // This ensures the data is immediately available for other pages
+        if (syncSuccess) {
+          setTimeout(async () => {
+            const freshData = await fetchFromBackend('/api/website-data');
+            if (freshData && typeof freshData === 'object') {
+              if (freshData.videos && Array.isArray(freshData.videos)) setVideos(freshData.videos);
+              if (freshData.categories && Array.isArray(freshData.categories)) setCategories(freshData.categories);
+              if (freshData.inquiries && Array.isArray(freshData.inquiries)) setInquiries(freshData.inquiries);
+              if (freshData.pageContent && typeof freshData.pageContent === 'object') setPageContent(freshData.pageContent);
+              if (freshData.contactInfo && typeof freshData.contactInfo === 'object') setContactInfo(freshData.contactInfo);
+              if (freshData.siteSettings && typeof freshData.siteSettings === 'object') setSiteSettings(freshData.siteSettings);
+              console.log('✓ Data verified from backend after sync');
+            }
+          }, 1000);
+        }
       } catch (error) {
         console.error('Failed to save data:', error);
       }
