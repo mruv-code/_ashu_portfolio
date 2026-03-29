@@ -31,7 +31,9 @@ app.use(express.json());
 app.use(cors({
   origin: 'https://ashu-portfolio-frontend.vercel.app', // In production, replace with your frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma', 'Expires', 'If-Modified-Since'],
+  credentials: true,
+  maxAge: 86400
 }));
 
 // Input validation helper

@@ -115,11 +115,7 @@ const fetchFromBackend = async (endpoint: string) => {
     const response = await fetch(`${API_URL}${endpoint}?${getCacheBustParam()}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'If-Modified-Since': new Date(0).toUTCString() // Force revalidation
+        'Content-Type': 'application/json'
       },
       cache: 'no-store'
     });
@@ -136,16 +132,13 @@ const fetchFromBackend = async (endpoint: string) => {
   }
 };
 
-// Function to push data to backend with cache control
+// Function to push data to backend
 const pushToBackend = async (endpoint: string, method: string, data: any) => {
   try {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method,
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     });
