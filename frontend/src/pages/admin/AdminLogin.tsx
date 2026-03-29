@@ -3,6 +3,8 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { Lock, Film, AlertCircle, Mail, Key, CheckCircle2, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useApp } from '../../AppContext';
 
+const API_URL = 'https://ashu-portfolio-backend-vgnp.onrender.com';
+
 type LoginStep = 'LOGIN' | 'VERIFY_OTP' | 'FORGOT_PASSWORD_EMAIL' | 'FORGOT_PASSWORD_RESET';
 
 const AdminLogin = () => {

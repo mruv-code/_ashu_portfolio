@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, MessageCircle, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useApp } from '../AppContext';
 
+const API_URL = 'https://ashu-portfolio-backend-vgnp.onrender.com';
+
 const Contact = () => {
   const { addInquiry, contactInfo } = useApp();
   const [submitted, setSubmitted] = useState(false);

@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
-import { API_URL } from '../frontend/src/config.js';
+import { API_URL } from './config.js';
 
 import path from 'path';
 import { fileURLToPath } from 'url';

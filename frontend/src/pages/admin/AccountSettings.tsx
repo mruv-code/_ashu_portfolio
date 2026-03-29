@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../AppContext';
 import { Shield, Lock, Mail, Check, AlertCircle, RefreshCw, ArrowLeft, Key, Save } from 'lucide-react';
 
+const API_URL = 'https://ashu-portfolio-backend-vgnp.onrender.com';
+
 const AccountSettings = () => {
   const { adminSettings, updateAdminSettings } = useApp();
   const [formData, setFormData] = useState({

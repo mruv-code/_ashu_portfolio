@@ -3,6 +3,8 @@ import { Save, Mail, Phone, MapPin, Instagram, Youtube, Facebook, MessageCircle,
 import { useApp } from '../../AppContext';
 import { ContactInfo } from '../../types';
 
+const API_URL = 'https://ashu-portfolio-backend-vgnp.onrender.com';
+
 const ManageContact = () => {
   const { contactInfo, updateContactInfo } = useApp();
   const [formData, setFormData] = useState<ContactInfo>(contactInfo);
