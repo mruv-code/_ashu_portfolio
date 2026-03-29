@@ -6,7 +6,14 @@ import { useApp } from '../AppContext';
 const API_URL = 'https://ashu-portfolio-backend-vgnp.onrender.com';
 
 const Contact = () => {
-  const { addInquiry, contactInfo } = useApp();
+  const { addInquiry, contactInfo, isLoading } = useApp();
+  
+  // Safe defaults for contact info
+  const phone = contactInfo?.phone || '+91 98765 43210';
+  const email = contactInfo?.email || 'hello@bandhanfilms.com';
+  const address = contactInfo?.address || 'Film City, Mumbai';
+  const whatsapp = contactInfo?.whatsapp || '+919876543210';
+  
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -189,7 +196,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-xs uppercase tracking-widest text-white/40 mb-1">Call Us</h4>
-                  <p className="text-xl font-serif">{contactInfo.phone}</p>
+                  <p className="text-xl font-serif">{phone}</p>
                 </div>
               </div>
               <div className="flex items-start gap-6">
@@ -198,7 +205,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-xs uppercase tracking-widest text-white/40 mb-1">Email Us</h4>
-                  <p className="text-xl font-serif">{contactInfo.email}</p>
+                  <p className="text-xl font-serif">{email}</p>
                 </div>
               </div>
               <div className="flex items-start gap-6">
@@ -207,13 +214,13 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="text-xs uppercase tracking-widest text-white/40 mb-1">Visit Us</h4>
-                  <p className="text-xl font-serif">{contactInfo.address}</p>
+                  <p className="text-xl font-serif">{address}</p>
                 </div>
               </div>
             </div>
 
             <a 
-              href={`https://wa.me/${contactInfo.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}`} 
+              href={`https://wa.me/${whatsapp.replace(/\+/g, '').replace(/\s/g, '')}`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 px-8 py-4 bg-[#25D366] text-white font-bold uppercase tracking-widest hover:opacity-90 transition-all rounded-full"

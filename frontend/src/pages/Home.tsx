@@ -30,8 +30,28 @@ const VideoBackground = ({ src, className }: { src: string | File, className?: s
 };
 
 const Home = () => {
-  const { videos, pageContent } = useApp();
+  const { videos, pageContent, isLoading } = useApp();
   const featuredVideos = videos.filter(v => v.isFeatured).slice(0, 3);
+  
+  // Safe defaults for home content
+  const homeContent = pageContent?.home || {};
+  const heroVideo = homeContent.heroVideo || 'https://assets.mixkit.co/videos/preview/mixkit-wedding-couple-walking-in-a-field-of-flowers-34404-large.mp4';
+  const tagline = homeContent.tagline || "We Don't Shoot Weddings, We Craft Stories";
+  const services = homeContent.services || [];
+  const testimonialTag = homeContent.testimonialTag || 'TESTIMONIALS';
+  const testimonialTitle = homeContent.testimonialTitle || 'What Our Clients Say';
+  const testimonials = homeContent.testimonials || [];
+
+  if (isLoading) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white/60">Loading cinematic content...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black">
@@ -39,7 +59,7 @@ const Home = () => {
       <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 z-0">
           <VideoBackground 
-            src={pageContent.home.heroVideo}
+            src={heroVideo}
             className="w-full h-full object-cover opacity-60 scale-105"
           />
           <div className="absolute inset-0 cinematic-gradient" />
@@ -52,7 +72,7 @@ const Home = () => {
             transition={{ duration: 1, delay: 0.2 }}
           >
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-serif font-bold mb-8 leading-tight tracking-tighter">
-              {pageContent.home.tagline}
+              {tagline}
             </h1>
             <div className="flex flex-col md:flex-row items-center justify-center gap-6">
               <Link 
@@ -125,13 +145,13 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {pageContent.home.services.map((service, idx) => (
+            {services && services.length > 0 ? services.map((service, idx) => (
               <motion.div
                 key={idx}
                 whileHover={{ y: -10 }}
                 className="group relative overflow-hidden bg-black/50 border border-white/10 hover:border-gold/50 transition-all flex flex-col"
               >
-                {service.image && (
+                {service?.image && (
                   <div className="w-full aspect-[4/5] overflow-hidden relative">
                     <img 
                       src={toMediaUrl(service.image) || ''} 
@@ -147,11 +167,13 @@ const Home = () => {
                   <div className="w-10 h-10 border border-gold flex items-center justify-center mb-6 group-hover:bg-gold group-hover:text-black transition-all">
                     <span className="font-serif text-lg font-bold">0{idx + 1}</span>
                   </div>
-                  <h3 className="text-2xl font-serif font-bold mb-4">{service.title}</h3>
-                  <p className="text-white/60 leading-relaxed text-sm">{service.description}</p>
+                  <h3 className="text-2xl font-serif font-bold mb-4">{service?.title || 'Service'}</h3>
+                  <p className="text-white/60 leading-relaxed text-sm">{service?.description || ''}</p>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+              <div className="col-span-full text-center text-white/40">Loading services...</div>
+            )}
           </div>
         </div>
       </section>
@@ -160,15 +182,15 @@ const Home = () => {
       <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <span className="text-gold uppercase tracking-widest text-xs font-bold mb-4 block">
-            {pageContent.home.testimonialTag || 'Testimonials'}
+            {testimonialTag}
           </span>
           <h2 className="text-4xl md:text-6xl font-serif font-bold mb-6">
-            {pageContent.home.testimonialTitle || 'What Our Clients Say'}
+            {testimonialTitle}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {pageContent.home.testimonials.map((t, idx) => (
+          {testimonials && testimonials.length > 0 ? testimonials.map((t, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 20 }}
@@ -185,19 +207,19 @@ const Home = () => {
                     <Star 
                       key={i} 
                       size={14} 
-                      className={i < (t.rating || 5) ? "text-gold fill-current" : "text-white/10"} 
+                      className={i < (t?.rating || 5) ? "text-gold fill-current" : "text-white/10"} 
                     />
                   ))}
                 </div>
                 
                 <p className="text-white/80 mb-10 leading-relaxed italic text-lg">
-                  "{t.text}"
+                  "{t?.text || ''}"
                 </p>
               </div>
 
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-zinc-800 border border-white/10">
-                  {t.image ? (
+                  {t?.image ? (
                     <MediaPreview src={t.image} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/10">
@@ -206,14 +228,16 @@ const Home = () => {
                   )}
                 </div>
                 <div>
-                  <p className="font-bold text-white">{t.name}</p>
+                  <p className="font-bold text-white">{t?.name || 'Client'}</p>
                   <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1">
-                    {t.role}
+                    {t?.role || 'Valued Client'}
                   </p>
                 </div>
               </div>
             </motion.div>
-          ))}
+          )) : (
+            <div className="col-span-full text-center text-white/40">Loading testimonials...</div>
+          )}
         </div>
       </section>
 

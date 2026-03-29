@@ -10,7 +10,28 @@ const MediaPreview = ({ src, className }: { src: string | File, className?: stri
 };
 
 const Info = () => {
-  const { pageContent } = useApp();
+  const { pageContent, isLoading } = useApp();
+
+  // Safe defaults for info content
+  const infoContent = pageContent?.info || {};
+  const about = infoContent.about || 'Bandhan Films is a premium video production house dedicated to cinematic excellence.';
+  const founder = infoContent.founder || {
+    name: 'Founder',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop',
+    story: 'Our founder is passionate about cinematic storytelling.'
+  };
+  const vision = infoContent.vision || 'To become the most trusted name in cinematic storytelling.';
+
+  if (isLoading) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white/60">Loading content...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black text-white">
@@ -50,7 +71,7 @@ const Info = () => {
           <div>
             <h2 className="text-3xl md:text-5xl font-serif font-bold mb-8">About Bandhan Films</h2>
             <p className="text-white/60 text-lg leading-relaxed mb-8">
-              {pageContent.info.about}
+              {about}
             </p>
             <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/10">
               <div>
@@ -72,14 +93,14 @@ const Info = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
             <div className="order-2 md:order-1">
               <span className="text-gold uppercase tracking-widest text-xs font-bold mb-4 block">The Visionary</span>
-              <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8">{pageContent.info.founder.name}</h2>
+              <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8">{founder?.name || 'Founder'}</h2>
               <p className="text-white/60 text-lg leading-relaxed mb-10 italic">
-                "{pageContent.info.founder.story}"
+                "{founder?.story || 'Our founder is passionate about cinematic storytelling.'}"
               </p>
               <div className="p-8 border-l-2 border-gold bg-zinc-900/50">
                 <h4 className="font-serif text-xl font-bold mb-4 text-gold">Our Vision</h4>
                 <p className="text-white/70 leading-relaxed">
-                  {pageContent.info.vision}
+                  {vision}
                 </p>
               </div>
             </div>
@@ -87,7 +108,7 @@ const Info = () => {
               <div className="absolute -top-10 -right-10 w-40 h-40 border-t-2 border-r-2 border-gold/30 hidden md:block" />
               <div className="relative aspect-[3/4] overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
                 <MediaPreview 
-                  src={pageContent.info.founder.image} 
+                  src={founder?.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop'} 
                   className="w-full h-full object-cover"
                 />
               </div>
