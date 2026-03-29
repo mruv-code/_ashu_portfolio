@@ -86,7 +86,7 @@ const ManageSiteSettings = () => {
               label="Site Logo"
               value={settings.logo as string}
               onChange={(file) => setSettings({ ...settings, logo: file })}
-              accept="image/*"
+              accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
               type="image"
             />
           </div>

@@ -37,6 +37,32 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Log file info for debugging
+    console.log('File selected:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      sizeKB: (file.size / 1024).toFixed(2)
+    });
+
+    // Validate file type
+    if (type === 'image') {
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+      if (!validImageTypes.includes(file.type)) {
+        console.error(`Invalid image type: ${file.type}. Accepted types: ${validImageTypes.join(', ')}`);
+        alert(`Please upload a valid image format (JPG, PNG, GIF, WebP, SVG). You uploaded: ${file.type || 'unknown'}`);
+        return;
+      }
+    } else if (type === 'video') {
+      const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/mpeg', 'video/quicktime'];
+      if (!validVideoTypes.includes(file.type)) {
+        console.error(`Invalid video type: ${file.type}. Accepted types: ${validVideoTypes.join(', ')}`);
+        alert(`Please upload a valid video format (MP4, WebM, OGG, MPEG, MOV). You uploaded: ${file.type || 'unknown'}`);
+        return;
+      }
+    }
+
     onChange(file);
   };
 

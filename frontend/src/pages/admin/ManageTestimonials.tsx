@@ -254,6 +254,8 @@ const ManageTestimonials = () => {
                   label="Client Avatar"
                   value={formData.image}
                   onChange={(file) => setFormData({ ...formData, image: file })}
+                  accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
+                  type="image"
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -180,7 +180,7 @@ const ManageServices = () => {
                   label="Service Image (Optional)"
                   value={formData.image}
                   onChange={(file) => setFormData({ ...formData, image: file })}
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                   type="image"
                 />
               </div>

@@ -59,7 +59,7 @@ const ManageContent = () => {
                   ...content,
                   home: { ...content.home, heroVideo: file }
                 })}
-                accept="video/*"
+                accept="video/mp4,video/webm,video/ogg,video/mpeg,video/quicktime,.mp4,.webm,.ogg,.mpeg,.mov"
                 type="video"
               />
             </div>
@@ -112,7 +112,7 @@ const ManageContent = () => {
                       ...content,
                       info: { ...content.info, founder: { ...content.info.founder, image: file } }
                     })}
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                     type="image"
                   />
                 </div>

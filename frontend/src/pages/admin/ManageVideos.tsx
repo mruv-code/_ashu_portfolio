@@ -237,7 +237,7 @@ const ManageVideos = () => {
                 label="Video File"
                 value={formData.url}
                 onChange={(file) => setFormData({ ...formData, url: file })}
-                accept="video/*"
+                accept="video/mp4,video/webm,video/ogg,video/mpeg,video/quicktime,.mp4,.webm,.ogg,.mpeg,.mov"
                 type="video"
               />
 
@@ -245,7 +245,7 @@ const ManageVideos = () => {
                 label="Thumbnail Image"
                 value={formData.thumbnail}
                 onChange={(file) => setFormData({ ...formData, thumbnail: file })}
-                accept="image/*"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                 type="image"
               />
 
