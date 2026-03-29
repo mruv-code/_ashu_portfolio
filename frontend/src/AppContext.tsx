@@ -102,18 +102,26 @@ const INITIAL_ADMIN: AdminSettings = {
   password: "password123"
 };
 
-// Helper function to add cache-busting timestamp to API calls
-const getCacheBustParam = () => `t=${Date.now()}`;
+// Helper function to add aggressive cache-busting timestamp + random token
+const getCacheBustParam = () => {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 15);
+  return `t=${timestamp}&_=${random}`;
+};
 
-// Function to fetch data from backend
+// Function to fetch data from backend with aggressive cache-busting
 const fetchFromBackend = async (endpoint: string) => {
   try {
     const response = await fetch(`${API_URL}${endpoint}?${getCacheBustParam()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, must-revalidate'
-      }
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'If-Modified-Since': new Date(0).toUTCString() // Force revalidation
+      },
+      cache: 'no-store'
     });
     
     if (response.ok) {
@@ -128,21 +136,25 @@ const fetchFromBackend = async (endpoint: string) => {
   }
 };
 
-// Function to push data to backend
+// Function to push data to backend with cache control
 const pushToBackend = async (endpoint: string, method: string, data: any) => {
   try {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, must-revalidate',
-        'Pragma': 'no-cache'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
       body: JSON.stringify(data)
     });
     
     if (!response.ok) {
       console.warn(`Failed to sync to ${endpoint}:`, response.status);
+    } else {
+      // Update last sync time
+      sessionStorage.setItem('bandhan_last_sync', Date.now().toString());
     }
   } catch (error) {
     console.warn(`Error syncing to ${endpoint}:`, error);
@@ -210,6 +222,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     loadData();
   }, []);
+
+  // Periodic refresh every 30 seconds to keep mobile in sync
+  useEffect(() => {
+    if (isLoading) return;
+
+    const refreshInterval = setInterval(async () => {
+      const backendData = await fetchFromBackend('/api/website-data');
+      if (backendData && Object.keys(backendData).length > 0) {
+        if (backendData.videos?.length > 0) setVideos(backendData.videos);
+        if (backendData.categories?.length > 0) setCategories(backendData.categories);
+        if (backendData.inquiries?.length > 0) setInquiries(backendData.inquiries);
+        if (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) setPageContent(backendData.pageContent);
+        if (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) setContactInfo(backendData.contactInfo);
+        if (backendData.siteSettings && Object.keys(backendData.siteSettings).length > 0) setSiteSettings(backendData.siteSettings);
+      }
+    }, 30000); // Refresh every 30 seconds
+
+    // Refresh when page regains focus
+    const handleFocus = async () => {
+      const backendData = await fetchFromBackend('/api/website-data');
+      if (backendData && Object.keys(backendData).length > 0) {
+        if (backendData.videos?.length > 0) setVideos(backendData.videos);
+        if (backendData.categories?.length > 0) setCategories(backendData.categories);
+        if (backendData.inquiries?.length > 0) setInquiries(backendData.inquiries);
+        if (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) setPageContent(backendData.pageContent);
+        if (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) setContactInfo(backendData.contactInfo);
+        if (backendData.siteSettings && Object.keys(backendData.siteSettings).length > 0) setSiteSettings(backendData.siteSettings);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [isLoading]);
 
   // Save data to both IndexedDB and backend whenever it changes
   useEffect(() => {
