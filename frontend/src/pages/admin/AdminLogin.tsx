@@ -135,7 +135,7 @@ const AdminLogin = () => {
     setError(null);
     setSuccess(null);
 
-    const endpoint = (step === 'VERIFY_OTP') ? '/api/auth/resend-otp' : '/api/auth/forgot-password';
+    const endpoint = (step === 'VERIFY_OTP') ? 'https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/resend-otp' : 'https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/forgot-password';
     const payload = (step === 'VERIFY_OTP') ? { email } : { email: forgotEmail };
 
     try {

@@ -93,7 +93,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // API Routes
-app.post('/api/auth/login', loginLimiter, async (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   // Basic input validation
@@ -144,7 +144,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
   }
 });
 
-app.post('/api/auth/verify-otp', (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/verify-otp', (req, res) => {
   const { email, otp } = req.body;
 
   if (!email || !otp || !isValidEmail(email) || !isValidOtp(otp)) {
@@ -177,7 +177,7 @@ app.post('/api/auth/verify-otp', (req, res) => {
   res.json({ message: 'Login successful', token: 'dummy-jwt-token' });
 });
 
-app.post('/api/auth/resend-otp', async (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/resend-otp', async (req, res) => {
   const { email } = req.body;
 
   if (!email || !isValidEmail(email)) {
@@ -228,7 +228,7 @@ app.post('/api/auth/resend-otp', async (req, res) => {
   }
 });
 
-app.post('/api/auth/forgot-password', async (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/forgot-password', async (req, res) => {
   const { email } = req.body;
 
   if (!email || !isValidEmail(email)) {
@@ -275,7 +275,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   }
 });
 
-app.post('/api/auth/reset-password', async (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/auth/reset-password', async (req, res) => {
   const { email, otp, newPassword } = req.body;
 
   if (!email || !otp || !newPassword || !isValidEmail(email) || !isValidOtp(otp) || !isValidPassword(newPassword)) {
@@ -310,7 +310,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 // Settings Change OTP Endpoints
-app.post('/api/admin/request-change', async (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/admin/request-change', async (req, res) => {
   const { oldEmail, oldPassword, newEmail, newPassword } = req.body;
 
   // Basic input validation
@@ -371,7 +371,7 @@ app.post('/api/admin/request-change', async (req, res) => {
   }
 });
 
-app.post('/api/admin/verify-change', (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/admin/verify-change', (req, res) => {
   const { currentEmail, otp } = req.body;
 
   if (!currentEmail || !otp || !isValidEmail(currentEmail) || !isValidOtp(otp)) {
@@ -420,11 +420,11 @@ interface CalendarAvailability {
 let calendarAvailability: CalendarAvailability = {};
 
 // Calendar APIs
-app.get('/api/calendar', (req, res) => {
+app.get('https://ashu-portfolio-backend-vgnp.onrender.com//api/calendar', (req, res) => {
   res.json(calendarAvailability);
 });
 
-app.post('/api/calendar', (req, res) => {
+app.post('https://ashu-portfolio-backend-vgnp.onrender.com//api/calendar', (req, res) => {
   const { availability } = req.body;
   if (!availability || typeof availability !== 'object') {
     return res.status(400).json({ message: 'Invalid availability data' });
