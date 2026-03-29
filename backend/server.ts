@@ -420,6 +420,36 @@ interface CalendarAvailability {
 
 let calendarAvailability: CalendarAvailability = {};
 
+// Store for website content
+interface WebsiteData {
+  videos: any[];
+  categories: any[];
+  inquiries: any[];
+  pageContent: any;
+  contactInfo: any;
+  siteSettings: any;
+}
+
+let websiteData: WebsiteData = {
+  videos: [],
+  categories: [],
+  inquiries: [],
+  pageContent: {},
+  contactInfo: {},
+  siteSettings: {}
+};
+
+// Middleware to set cache headers for dynamic content
+const noCacheHeaders = (req: any, res: any, next: any) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+};
+
+// Apply no-cache headers to API responses
+app.use(`${API_URL}/api/`, noCacheHeaders);
+
 // Calendar APIs
 app.get(`${API_URL}/api/calendar`, (req, res) => {
   res.json(calendarAvailability);
@@ -432,6 +462,88 @@ app.post(`${API_URL}/api/calendar`, (req, res) => {
   }
   calendarAvailability = availability;
   res.json({ message: 'Calendar updated successfully', availability: calendarAvailability });
+});
+
+// Website Data APIs - Get all data
+app.get(`${API_URL}/api/website-data`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.set('ETag', JSON.stringify(websiteData).length.toString());
+  res.json(websiteData);
+});
+
+// Website Data APIs - Update all data
+app.post(`${API_URL}/api/website-data`, (req, res) => {
+  const { videos, categories, inquiries, pageContent, contactInfo, siteSettings } = req.body;
+  
+  if (videos) websiteData.videos = videos;
+  if (categories) websiteData.categories = categories;
+  if (inquiries) websiteData.inquiries = inquiries;
+  if (pageContent) websiteData.pageContent = pageContent;
+  if (contactInfo) websiteData.contactInfo = contactInfo;
+  if (siteSettings) websiteData.siteSettings = siteSettings;
+  
+  res.json({ message: 'Website data updated successfully', data: websiteData });
+});
+
+// Individual endpoints for each data type
+app.get(`${API_URL}/api/videos`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.videos);
+});
+
+app.post(`${API_URL}/api/videos`, (req, res) => {
+  websiteData.videos = req.body;
+  res.json({ message: 'Videos updated', videos: websiteData.videos });
+});
+
+app.get(`${API_URL}/api/categories`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.categories);
+});
+
+app.post(`${API_URL}/api/categories`, (req, res) => {
+  websiteData.categories = req.body;
+  res.json({ message: 'Categories updated', categories: websiteData.categories });
+});
+
+app.get(`${API_URL}/api/inquiries`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.inquiries);
+});
+
+app.post(`${API_URL}/api/inquiries`, (req, res) => {
+  websiteData.inquiries = req.body;
+  res.json({ message: 'Inquiries updated', inquiries: websiteData.inquiries });
+});
+
+app.get(`${API_URL}/api/page-content`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.pageContent);
+});
+
+app.post(`${API_URL}/api/page-content`, (req, res) => {
+  websiteData.pageContent = req.body;
+  res.json({ message: 'Page content updated', pageContent: websiteData.pageContent });
+});
+
+app.get(`${API_URL}/api/contact-info`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.contactInfo);
+});
+
+app.post(`${API_URL}/api/contact-info`, (req, res) => {
+  websiteData.contactInfo = req.body;
+  res.json({ message: 'Contact info updated', contactInfo: websiteData.contactInfo });
+});
+
+app.get(`${API_URL}/api/site-settings`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.siteSettings);
+});
+
+app.post(`${API_URL}/api/site-settings`, (req, res) => {
+  websiteData.siteSettings = req.body;
+  res.json({ message: 'Site settings updated', siteSettings: websiteData.siteSettings });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

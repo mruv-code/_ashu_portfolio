@@ -139,10 +139,10 @@ const ManageContact = () => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-serif font-bold text-lg">{monthName} {year}</h3>
           <div className="flex gap-2">
-            <button type="button" onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-full transition-all">
+            <button type="button" onClick={prevMonth} title="Previous month" className="p-2 hover:bg-white/10 rounded-full transition-all">
               <ChevronLeft size={20} />
             </button>
-            <button type="button" onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-full transition-all">
+            <button type="button" onClick={nextMonth} title="Next month" className="p-2 hover:bg-white/10 rounded-full transition-all">
               <ChevronRight size={20} />
             </button>
           </div>

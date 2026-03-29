@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Video, Category, Inquiry, PageContent, ContactInfo, SiteSettings, AdminSettings } from './types';
 import { get, set } from 'idb-keyval';
+import { API_URL } from './config';
 
 interface AppContextType {
   videos: Video[];
@@ -101,6 +102,53 @@ const INITIAL_ADMIN: AdminSettings = {
   password: "password123"
 };
 
+// Helper function to add cache-busting timestamp to API calls
+const getCacheBustParam = () => `t=${Date.now()}`;
+
+// Function to fetch data from backend
+const fetchFromBackend = async (endpoint: string) => {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}?${getCacheBustParam()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate'
+      }
+    });
+    
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.warn(`Failed to fetch from ${endpoint}:`, response.status);
+      return null;
+    }
+  } catch (error) {
+    console.warn(`Error fetching from ${endpoint}:`, error);
+    return null;
+  }
+};
+
+// Function to push data to backend
+const pushToBackend = async (endpoint: string, method: string, data: any) => {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      console.warn(`Failed to sync to ${endpoint}:`, response.status);
+    }
+  } catch (error) {
+    console.warn(`Error syncing to ${endpoint}:`, error);
+  }
+};
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [videos, setVideos] = useState<Video[]>(INITIAL_VIDEOS);
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
@@ -112,34 +160,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load data on mount
+  // Load data on mount - fetch from backend first, then fallback to IndexedDB
   useEffect(() => {
     const loadData = async () => {
       try {
-        const savedVideos = await get('bandhan_videos');
-        const savedCategories = await get('bandhan_categories');
-        const savedInquiries = await get('bandhan_inquiries');
-        const savedContent = await get('bandhan_content');
-        const savedContact = await get('bandhan_contact');
-        const savedSettings = await get('bandhan_settings');
-        const savedAdmin = await get('bandhan_admin');
-        const savedIsAdmin = localStorage.getItem('bandhan_isAdmin') === 'true';
+        // Try to fetch from backend first with cache busting
+        const backendData = await fetchFromBackend('/api/website-data');
+        
+        if (backendData && Object.keys(backendData).length > 0) {
+          // Use backend data if available
+          if (backendData.videos?.length > 0) setVideos(backendData.videos);
+          if (backendData.categories?.length > 0) setCategories(backendData.categories);
+          if (backendData.inquiries?.length > 0) setInquiries(backendData.inquiries);
+          if (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) setPageContent(backendData.pageContent);
+          if (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) setContactInfo(backendData.contactInfo);
+          if (backendData.siteSettings && Object.keys(backendData.siteSettings).length > 0) setSiteSettings(backendData.siteSettings);
+        } else {
+          // Fallback to IndexedDB if backend is empty
+          const savedVideos = await get('bandhan_videos');
+          const savedCategories = await get('bandhan_categories');
+          const savedInquiries = await get('bandhan_inquiries');
+          const savedContent = await get('bandhan_content');
+          const savedContact = await get('bandhan_contact');
+          const savedSettings = await get('bandhan_settings');
+          const savedAdmin = await get('bandhan_admin');
 
-        if (savedVideos) setVideos(savedVideos);
-        if (savedCategories) setCategories(savedCategories);
-        if (savedInquiries) setInquiries(savedInquiries);
-        if (savedContent) setPageContent(savedContent);
-        if (savedContact) setContactInfo(savedContact);
-        if (savedSettings) setSiteSettings(savedSettings);
-        if (savedAdmin) {
-          setAdminSettings({
-            ...INITIAL_ADMIN,
-            ...savedAdmin
-          });
+          if (savedVideos) setVideos(savedVideos);
+          if (savedCategories) setCategories(savedCategories);
+          if (savedInquiries) setInquiries(savedInquiries);
+          if (savedContent) setPageContent(savedContent);
+          if (savedContact) setContactInfo(savedContact);
+          if (savedSettings) setSiteSettings(savedSettings);
+          if (savedAdmin) {
+            setAdminSettings({
+              ...INITIAL_ADMIN,
+              ...savedAdmin
+            });
+          }
         }
+
+        const savedIsAdmin = localStorage.getItem('bandhan_isAdmin') === 'true';
         if (savedIsAdmin) setIsAdmin(true);
       } catch (error) {
-        console.error('Failed to load data from IndexedDB:', error);
+        console.error('Failed to load data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -148,12 +211,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     loadData();
   }, []);
 
-  // Save data whenever it changes
+  // Save data to both IndexedDB and backend whenever it changes
   useEffect(() => {
     if (isLoading) return;
 
     const saveData = async () => {
       try {
+        // Save to IndexedDB
         await set('bandhan_videos', videos);
         await set('bandhan_categories', categories);
         await set('bandhan_inquiries', inquiries);
@@ -161,8 +225,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         await set('bandhan_contact', contactInfo);
         await set('bandhan_settings', siteSettings);
         await set('bandhan_admin', adminSettings);
+
+        // Sync to backend
+        await pushToBackend('/api/website-data', 'POST', {
+          videos,
+          categories,
+          inquiries,
+          pageContent,
+          contactInfo,
+          siteSettings
+        });
       } catch (error) {
-        console.error('Failed to save data to IndexedDB:', error);
+        console.error('Failed to save data:', error);
       }
     };
 
