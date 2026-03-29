@@ -61,14 +61,47 @@ const ManageVideos = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Convert File to data URL
+  const fileToDataUrl = (file: File | string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (typeof file === 'string') {
+        resolve(file);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingVideo) {
-      updateVideo(editingVideo.id, formData);
-    } else {
-      addVideo(formData);
+    
+    try {
+      // Convert all File objects to data URLs before saving
+      const finalData = { ...formData };
+      
+      if (formData.url instanceof File) {
+        console.log('Converting video URL File to data URL...');
+        finalData.url = await fileToDataUrl(formData.url);
+      }
+      
+      if (formData.thumbnail instanceof File) {
+        console.log('Converting thumbnail File to data URL...');
+        finalData.thumbnail = await fileToDataUrl(formData.thumbnail);
+      }
+      
+      if (editingVideo) {
+        updateVideo(editingVideo.id, finalData);
+      } else {
+        addVideo(finalData);
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error processing files:', error);
+      alert('Error processing files. Please try again.');
     }
-    setIsModalOpen(false);
   };
 
   return (

@@ -31,19 +31,39 @@ const ManageServices = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newServices = [...pageContent.home.services];
-    if (editingIndex !== null) {
-      newServices[editingIndex] = formData;
-    } else {
-      newServices.push(formData);
+    
+    try {
+      // Convert File objects to data URLs
+      let finalData = { ...formData };
+      
+      if (formData.image instanceof File) {
+        console.log('Converting service image File to data URL...');
+        const reader = new FileReader();
+        const imageUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(formData.image as File);
+        });
+        finalData = { ...finalData, image: imageUrl };
+      }
+
+      const newServices = [...pageContent.home.services];
+      if (editingIndex !== null) {
+        newServices[editingIndex] = finalData;
+      } else {
+        newServices.push(finalData);
+      }
+      updatePageContent({
+        ...pageContent,
+        home: { ...pageContent.home, services: newServices }
+      });
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Error processing image. Please try again.');
     }
-    updatePageContent({
-      ...pageContent,
-      home: { ...pageContent.home, services: newServices }
-    });
-    setIsModalOpen(false);
   };
 
   const handleDelete = () => {

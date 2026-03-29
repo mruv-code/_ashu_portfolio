@@ -9,15 +9,36 @@ const ManageSiteSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
+  // Convert File to data URL
+  const fileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setMessage(null);
 
     try {
-      updateSiteSettings(settings);
+      // Convert File objects to data URLs before saving
+      let finalSettings = { ...settings };
+      
+      if (settings.logo instanceof File) {
+        console.log('Converting logo File to data URL...');
+        const logoDataUrl = await fileToDataUrl(settings.logo);
+        finalSettings = { ...finalSettings, logo: logoDataUrl };
+      }
+
+      console.log('Saving settings:', finalSettings);
+      updateSiteSettings(finalSettings);
       setMessage({ type: 'success', text: 'Settings updated successfully!' });
     } catch (error) {
+      console.error('Error saving settings:', error);
       setMessage({ type: 'error', text: 'Failed to update settings.' });
     } finally {
       setIsSaving(false);

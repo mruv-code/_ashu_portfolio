@@ -62,25 +62,45 @@ const ManageTestimonials = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newTestimonials = [...testimonials];
     
-    if (editingIndex !== null) {
-      newTestimonials[editingIndex] = formData;
-    } else {
-      newTestimonials.push(formData);
-    }
-
-    updatePageContent({
-      ...pageContent,
-      home: {
-        ...pageContent.home,
-        testimonials: newTestimonials
+    try {
+      // Convert File objects to data URLs
+      let finalData = { ...formData };
+      
+      if (formData.image instanceof File) {
+        console.log('Converting testimonial image File to data URL...');
+        const reader = new FileReader();
+        const imageUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(formData.image as File);
+        });
+        finalData = { ...finalData, image: imageUrl };
       }
-    });
-    
-    setIsModalOpen(false);
+
+      const newTestimonials = [...testimonials];
+      
+      if (editingIndex !== null) {
+        newTestimonials[editingIndex] = finalData;
+      } else {
+        newTestimonials.push(finalData);
+      }
+
+      updatePageContent({
+        ...pageContent,
+        home: {
+          ...pageContent.home,
+          testimonials: newTestimonials
+        }
+      });
+      
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Error processing image. Please try again.');
+    }
   };
 
   const deleteTestimonial = () => {
