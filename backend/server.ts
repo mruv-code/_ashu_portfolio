@@ -41,11 +41,11 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     // Allow images and videos
     const allowedTypes = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/pjpeg',
       'video/mp4', 'video/webm', 'video/ogg', 'video/mpeg', 'video/quicktime'
     ];
     
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedTypes.includes(file.mimetype.toLowerCase())) {
       cb(null, true);
     } else {
       cb(new Error(`Invalid file type: ${file.mimetype}. Allowed types: ${allowedTypes.join(', ')}`));
@@ -719,6 +719,18 @@ app.post(`${API_URL}/api/upload`, upload.single('file'), (req, res) => {
     console.error('File upload error:', error);
     res.status(500).json({ message: 'File upload failed', error: error instanceof Error ? error.message : String(error) });
   }
+});
+
+// Global error handler (including multer errors) so frontend always gets JSON
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err) {
+    console.error('Unhandled error:', err);
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ message: err.message });
+    }
+    return res.status(500).json({ message: err.message || 'Internal Server Error' });
+  }
+  next();
 });
 
 app.listen(PORT, '0.0.0.0', () => {
