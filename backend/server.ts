@@ -28,7 +28,7 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true, // Only count failed attempts
 });
 
-app.use(express.json());
+// CORS middleware must run before body parsing so error responses still include CORS headers.
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -54,6 +54,19 @@ app.use(cors({
   credentials: true,
   maxAge: 86400
 }));
+
+// Body parsers with higher limits to avoid 413 on large site-settings payloads
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Handle too-large JSON bodies in a friendly CORS-aware way
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.too.large') {
+    res.status(413).json({ message: 'Payload too large. Reduce request size or increase server JSON limit.' });
+  } else {
+    next(err);
+  }
+});
 
 // Input validation helper
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
