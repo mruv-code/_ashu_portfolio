@@ -192,7 +192,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (backendData.videos && Array.isArray(backendData.videos)) setVideos(backendData.videos);
           if (backendData.categories && Array.isArray(backendData.categories)) setCategories(backendData.categories);
           if (backendData.inquiries && Array.isArray(backendData.inquiries)) setInquiries(backendData.inquiries);
-          if (backendData.pageContent && typeof backendData.pageContent === 'object') setPageContent(backendData.pageContent);
+          if (backendData.pageContent && typeof backendData.pageContent === 'object') {
+            // Merge backend pageContent with INITIAL_CONTENT to ensure all required properties exist
+            const mergedPageContent = { ...INITIAL_CONTENT, ...backendData.pageContent };
+            setPageContent(mergedPageContent);
+          }
           if (backendData.contactInfo && typeof backendData.contactInfo === 'object') setContactInfo(backendData.contactInfo);
           if (backendData.siteSettings && typeof backendData.siteSettings === 'object') setSiteSettings(backendData.siteSettings);
           console.log('✓ Website data loaded from backend');
@@ -210,7 +214,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (savedVideos) setVideos(savedVideos);
           if (savedCategories) setCategories(savedCategories);
           if (savedInquiries) setInquiries(savedInquiries);
-          if (savedContent) setPageContent(savedContent);
+          if (savedContent) {
+            // Merge saved content with INITIAL_CONTENT to ensure all required properties exist
+            const mergedPageContent = { ...INITIAL_CONTENT, ...savedContent };
+            setPageContent(mergedPageContent);
+          }
           if (savedContact) setContactInfo(savedContact);
           if (savedSettings) setSiteSettings(savedSettings);
           if (savedAdmin) {
