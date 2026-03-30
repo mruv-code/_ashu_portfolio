@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
 import { API_URL } from './config.js';
 
 import path from 'path';
@@ -14,6 +15,43 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Configure multer for file uploads
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    // Generate unique filename with timestamp
+    const uniqueName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${file.originalname}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow images and videos
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+      'video/mp4', 'video/webm', 'video/ogg', 'video/mpeg', 'video/quicktime'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Invalid file type: ${file.mimetype}. Allowed types: ${allowedTypes.join(', ')}`));
+    }
+  }
+});
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -67,6 +105,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     next(err);
   }
 });
+
+// Serve uploaded files statically
+app.use(`${API_URL}/uploads`, express.static(uploadsDir));
 
 // Input validation helper
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -647,6 +688,30 @@ app.post(`${API_URL}/api/site-settings`, (req, res) => {
   websiteData.siteSettings = req.body;
   saveDataToFile();
   res.json({ message: 'Site settings updated', siteSettings: websiteData.siteSettings });
+});
+
+// File upload endpoint
+app.post(`${API_URL}/api/upload`, upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Return the file URL
+    const fileUrl = `${API_URL}/uploads/${req.file.filename}`;
+    console.log('File uploaded successfully:', fileUrl);
+    
+    res.json({
+      message: 'File uploaded successfully',
+      url: fileUrl,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size
+    });
+  } catch (error) {
+    console.error('File upload error:', error);
+    res.status(500).json({ message: 'File upload failed', error: error instanceof Error ? error.message : String(error) });
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
