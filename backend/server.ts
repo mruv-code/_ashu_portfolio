@@ -498,6 +498,7 @@ let calendarAvailability: CalendarAvailability = {};
 interface WebsiteData {
   videos: any[];
   categories: any[];
+  blogs: any[];
   inquiries: any[];
   pageContent: any;
   contactInfo: any;
@@ -511,6 +512,7 @@ const dataFilePath = path.join(path.dirname(__filename), 'data.json');
 let websiteData: WebsiteData = {
   videos: [],
   categories: [],
+  blogs: [],
   inquiries: [],
   pageContent: {},
   contactInfo: {},
