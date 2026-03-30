@@ -60,7 +60,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Handle too-large JSON bodies in a friendly CORS-aware way
-app.use((err, req, res, next) => {
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (err && err.type === 'entity.too.large') {
     res.status(413).json({ message: 'Payload too large. Reduce request size or increase server JSON limit.' });
   } else {
