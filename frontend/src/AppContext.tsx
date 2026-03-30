@@ -369,7 +369,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     saveData();
-  }, [videos, categories, inquiries, pageContent, contactInfo, siteSettings, adminSettings, isLoading]);
+  }, [videos, categories, blogs, inquiries, pageContent, contactInfo, siteSettings, adminSettings, isLoading]);
 
   const addVideo = (video: Omit<Video, 'id'>) => {
     const newVideo = { ...video, id: Date.now().toString() };

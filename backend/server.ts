@@ -106,7 +106,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Serve uploaded files statically
-app.use(`${API_URL}/uploads`, express.static(uploadsDir));
+app.use(`${API_URL}/api/uploads`, express.static(uploadsDir));
 
 // Input validation helper
 const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
