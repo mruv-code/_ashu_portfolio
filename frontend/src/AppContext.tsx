@@ -136,14 +136,35 @@ const fetchFromBackend = async (endpoint: string) => {
 const pushToBackend = async (endpoint: string, method: string, data: any) => {
   try {
     console.log(`Syncing data to ${endpoint}...`);
+
+    // Validate data before sending
+    let jsonString;
+    try {
+      // Create a clean copy of data for JSON serialization
+      // Convert File objects to their names or exclude them
+      const cleanData = JSON.parse(JSON.stringify(data, (key, value) => {
+        if (value instanceof File) {
+          // For File objects, just send the filename or a placeholder
+          return value.name || '[FILE]';
+        }
+        return value;
+      }));
+      jsonString = JSON.stringify(cleanData);
+      console.log(`Data size: ${jsonString.length} characters`);
+    } catch (jsonError) {
+      console.error('JSON serialization error:', jsonError);
+      console.error('Data that failed to serialize:', data);
+      return false;
+    }
+
     const response = await fetch(`${API_URL}${endpoint}`, {
       method,
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: jsonString
     });
-    
+
     if (!response.ok) {
       console.error(`Failed to sync to ${endpoint}: HTTP ${response.status}`);
       console.error('Response:', await response.text());
