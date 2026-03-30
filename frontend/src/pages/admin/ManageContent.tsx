@@ -7,6 +7,7 @@ const ManageContent = () => {
   const { pageContent, updatePageContent } = useApp();
   const [content, setContent] = useState(pageContent);
   const [saved, setSaved] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSave = () => {
     updatePageContent(content);
@@ -23,10 +24,11 @@ const ManageContent = () => {
         </div>
         <button 
           onClick={handleSave}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg"
+          disabled={isUploading}
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saved ? <Check size={20} /> : <Save size={20} />}
-          {saved ? 'Saved' : 'Save Changes'}
+          {saved ? 'Saved' : isUploading ? 'Uploading...' : 'Save Changes'}
         </button>
       </div>
 
@@ -61,6 +63,8 @@ const ManageContent = () => {
                 })}
                 accept="video/mp4,video/webm,video/ogg,video/mpeg,video/quicktime,.mp4,.webm,.ogg,.mpeg,.mov"
                 type="video"
+                onUploadStart={() => setIsUploading(true)}
+                onUploadEnd={() => setIsUploading(false)}
               />
             </div>
           </div>
@@ -114,6 +118,8 @@ const ManageContent = () => {
                     })}
                     accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                     type="image"
+                    onUploadStart={() => setIsUploading(true)}
+                    onUploadEnd={() => setIsUploading(false)}
                   />
                 </div>
               </div>

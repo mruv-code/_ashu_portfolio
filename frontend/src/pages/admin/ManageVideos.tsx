@@ -17,6 +17,7 @@ const ManageVideos = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<{
     title: string;
     category: string;
@@ -61,46 +62,21 @@ const ManageVideos = () => {
     }
   };
 
-  // Convert File to data URL
-  const fileToDataUrl = (file: File | string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (typeof file === 'string') {
-        resolve(file);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      // Convert all File objects to data URLs before saving
-      const finalData = { ...formData };
-      
-      if (formData.url instanceof File) {
-        console.log('Converting video URL File to data URL...');
-        finalData.url = await fileToDataUrl(formData.url);
-      }
-      
-      if (formData.thumbnail instanceof File) {
-        console.log('Converting thumbnail File to data URL...');
-        finalData.thumbnail = await fileToDataUrl(formData.thumbnail);
-      }
-      
+      // Files are now uploaded automatically by FileUpload component
+      // Just use the form data as-is (URLs are already uploaded)
       if (editingVideo) {
-        updateVideo(editingVideo.id, finalData);
+        updateVideo(editingVideo.id, formData);
       } else {
-        addVideo(finalData);
+        addVideo(formData);
       }
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Error processing files:', error);
-      alert('Error processing files. Please try again.');
+      console.error('Error saving video:', error);
+      alert('Error saving video. Please try again.');
     }
   };
 
@@ -239,6 +215,8 @@ const ManageVideos = () => {
                 onChange={(file) => setFormData({ ...formData, url: file })}
                 accept="video/mp4,video/webm,video/ogg,video/mpeg,video/quicktime,.mp4,.webm,.ogg,.mpeg,.mov"
                 type="video"
+                onUploadStart={() => setIsUploading(true)}
+                onUploadEnd={() => setIsUploading(false)}
               />
 
               <FileUpload 
@@ -247,6 +225,8 @@ const ManageVideos = () => {
                 onChange={(file) => setFormData({ ...formData, thumbnail: file })}
                 accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                 type="image"
+                onUploadStart={() => setIsUploading(true)}
+                onUploadEnd={() => setIsUploading(false)}
               />
 
               <div className="flex items-center gap-3">
@@ -266,9 +246,15 @@ const ManageVideos = () => {
               <div className="pt-6 flex gap-4">
                 <button 
                   type="submit"
-                  className="flex-1 py-4 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg"
+                  disabled={isUploading}
+                  className={cn(
+                    "flex-1 py-4 font-bold uppercase tracking-widest transition-all rounded-lg",
+                    isUploading 
+                      ? "bg-zinc-600 text-zinc-400 cursor-not-allowed" 
+                      : "bg-gold text-black hover:bg-gold-light"
+                  )}
                 >
-                  {editingVideo ? 'Save Changes' : 'Add Video'}
+                  {isUploading ? 'Uploading...' : (editingVideo ? 'Save Changes' : 'Add Video')}
                 </button>
                 <button 
                   type="button"

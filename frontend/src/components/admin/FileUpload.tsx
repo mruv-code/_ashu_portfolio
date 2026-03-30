@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Film } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { API_URL } from '../../config';
 
 interface FileUploadProps {
   label: string;
@@ -9,6 +10,8 @@ interface FileUploadProps {
   accept?: string;
   type?: 'image' | 'video';
   className?: string;
+  onUploadStart?: () => void;
+  onUploadEnd?: () => void;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ 
@@ -17,10 +20,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
   onChange, 
   accept = "image/*", 
   type = 'image',
-  className 
+  className,
+  onUploadStart,
+  onUploadEnd
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
 
   React.useEffect(() => {
     if (value instanceof File) {
@@ -34,11 +40,35 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, [value]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(`${API_URL}/api/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Upload failed');
+    }
+
+    const result = await response.json();
+    return result.url;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Log file info for debugging
+    console.log('File selected:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      sizeKB: (file.size / 1024).toFixed(2)
+    });
     console.log('File selected:', {
       name: file.name,
       type: file.type,
@@ -63,7 +93,18 @@ const FileUpload: React.FC<FileUploadProps> = ({
       }
     }
 
-    onChange(file);
+    try {
+      onUploadStart?.();
+      setIsUploading(true);
+      const uploadedUrl = await uploadFile(file);
+      onChange(uploadedUrl);
+    } catch (error) {
+      console.error('File upload failed:', error);
+      alert(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsUploading(false);
+      onUploadEnd?.();
+    }
   };
 
   const handleClear = (e: React.MouseEvent) => {
@@ -78,10 +119,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
     <div className={cn("space-y-2", className)}>
       <label className="text-xs uppercase tracking-widest text-white/40">{label}</label>
       <div 
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => !isUploading && fileInputRef.current?.click()}
         className={cn(
           "relative w-full min-h-[120px] bg-white/5 border border-dashed border-white/10 rounded-lg cursor-pointer hover:border-gold/50 transition-all flex flex-col items-center justify-center p-4 group",
-          value ? "border-solid border-gold/30" : ""
+          value ? "border-solid border-gold/30" : "",
+          isUploading ? "opacity-50 cursor-not-allowed" : ""
         )}
       >
         <input 
@@ -89,10 +131,16 @@ const FileUpload: React.FC<FileUploadProps> = ({
           ref={fileInputRef}
           onChange={handleFileChange}
           accept={accept}
+          disabled={isUploading}
           className="hidden"
         />
 
-        {value ? (
+        {isUploading ? (
+          <div className="flex flex-col items-center gap-3 text-white/40">
+            <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm">Uploading...</p>
+          </div>
+        ) : value ? (
           <div className="w-full h-full flex flex-col items-center gap-4">
               {type === 'image' ? (
                 <div className="relative w-full aspect-video rounded-md overflow-hidden bg-black/40">

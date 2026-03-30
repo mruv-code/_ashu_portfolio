@@ -11,6 +11,7 @@ const ManageTestimonials = () => {
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isSavingHeader, setIsSavingHeader] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const [headerData, setHeaderData] = useState({
     testimonialTag: pageContent.home.testimonialTag || 'TESTIMONIALS',
@@ -66,26 +67,14 @@ const ManageTestimonials = () => {
     e.preventDefault();
     
     try {
-      // Convert File objects to data URLs
-      let finalData = { ...formData };
-      
-      if (formData.image instanceof File) {
-        console.log('Converting testimonial image File to data URL...');
-        const reader = new FileReader();
-        const imageUrl = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(formData.image as File);
-        });
-        finalData = { ...finalData, image: imageUrl };
-      }
-
+      // Files are now uploaded automatically by FileUpload component
+      // Just use the form data as-is (URLs are already uploaded)
       const newTestimonials = [...testimonials];
       
       if (editingIndex !== null) {
-        newTestimonials[editingIndex] = finalData;
+        newTestimonials[editingIndex] = formData;
       } else {
-        newTestimonials.push(finalData);
+        newTestimonials.push(formData);
       }
 
       updatePageContent({
@@ -256,6 +245,8 @@ const ManageTestimonials = () => {
                   onChange={(file) => setFormData({ ...formData, image: file })}
                   accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                   type="image"
+                  onUploadStart={() => setIsUploading(true)}
+                  onUploadEnd={() => setIsUploading(false)}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -324,9 +315,10 @@ const ManageTestimonials = () => {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 py-4 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg"
+                  disabled={isUploading}
+                  className="flex-1 py-4 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingIndex !== null ? 'Update' : 'Save'}
+                  {isUploading ? 'Uploading...' : (editingIndex !== null ? 'Update' : 'Save')}
                 </button>
               </div>
             </form>

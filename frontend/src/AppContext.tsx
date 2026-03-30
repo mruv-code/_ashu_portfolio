@@ -135,8 +135,6 @@ const fetchFromBackend = async (endpoint: string) => {
 // Function to push data to backend
 const pushToBackend = async (endpoint: string, method: string, data: any) => {
   try {
-    console.log(`Syncing data to ${endpoint}...`);
-
     // Validate data before sending
     let jsonString;
     try {
@@ -150,7 +148,6 @@ const pushToBackend = async (endpoint: string, method: string, data: any) => {
         return value;
       }));
       jsonString = JSON.stringify(cleanData);
-      console.log(`Data size: ${jsonString.length} characters`);
     } catch (jsonError) {
       console.error('JSON serialization error:', jsonError);
       console.error('Data that failed to serialize:', data);
@@ -171,7 +168,6 @@ const pushToBackend = async (endpoint: string, method: string, data: any) => {
       return false;
     } else {
       const responseData = await response.json();
-      console.log(`✓ Data synced to backend:`, responseData);
       // Update last sync time
       sessionStorage.setItem('bandhan_last_sync', Date.now().toString());
       return true;
@@ -201,7 +197,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         let backendData = null;
         try {
           backendData = await fetchFromBackend('/api/website-data');
-          console.log('Backend data fetched:', backendData);
         } catch (error) {
           console.warn('Backend fetch failed, trying again...', error);
           // Retry once if first attempt fails
@@ -220,7 +215,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
           if (backendData.contactInfo && typeof backendData.contactInfo === 'object') setContactInfo(backendData.contactInfo);
           if (backendData.siteSettings && typeof backendData.siteSettings === 'object') setSiteSettings(backendData.siteSettings);
-          console.log('✓ Website data loaded from backend');
         } else {
           console.log('No valid backend data, loading from IndexedDB...');
           // Fallback to IndexedDB if backend fails
@@ -248,7 +242,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               ...savedAdmin
             });
           }
-          console.log('✓ Website data loaded from IndexedDB (backend unavailable)');
         }
 
         const savedIsAdmin = localStorage.getItem('bandhan_isAdmin') === 'true';
@@ -337,7 +330,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               if (freshData.pageContent && typeof freshData.pageContent === 'object') setPageContent(freshData.pageContent);
               if (freshData.contactInfo && typeof freshData.contactInfo === 'object') setContactInfo(freshData.contactInfo);
               if (freshData.siteSettings && typeof freshData.siteSettings === 'object') setSiteSettings(freshData.siteSettings);
-              console.log('✓ Data verified from backend after sync');
             }
           }, 1000);
         }

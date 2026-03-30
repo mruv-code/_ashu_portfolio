@@ -10,6 +10,7 @@ const ManageServices = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -35,25 +36,13 @@ const ManageServices = () => {
     e.preventDefault();
     
     try {
-      // Convert File objects to data URLs
-      let finalData = { ...formData };
-      
-      if (formData.image instanceof File) {
-        console.log('Converting service image File to data URL...');
-        const reader = new FileReader();
-        const imageUrl = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(formData.image as File);
-        });
-        finalData = { ...finalData, image: imageUrl };
-      }
-
+      // Files are now uploaded automatically by FileUpload component
+      // Just use the form data as-is (URLs are already uploaded)
       const newServices = [...pageContent.home.services];
       if (editingIndex !== null) {
-        newServices[editingIndex] = finalData;
+        newServices[editingIndex] = formData;
       } else {
-        newServices.push(finalData);
+        newServices.push(formData);
       }
       updatePageContent({
         ...pageContent,
@@ -61,8 +50,8 @@ const ManageServices = () => {
       });
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Error processing image:', error);
-      alert('Error processing image. Please try again.');
+      console.error('Error saving service:', error);
+      alert('Error saving service. Please try again.');
     }
   };
 
@@ -182,14 +171,17 @@ const ManageServices = () => {
                   onChange={(file) => setFormData({ ...formData, image: file })}
                   accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
                   type="image"
+                  onUploadStart={() => setIsUploading(true)}
+                  onUploadEnd={() => setIsUploading(false)}
                 />
               </div>
               <div className="pt-4 flex gap-4">
                 <button 
                   type="submit"
-                  className="flex-1 py-4 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg"
+                  disabled={isUploading}
+                  className="flex-1 py-4 bg-gold text-black font-bold uppercase tracking-widest hover:bg-gold-light transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingIndex !== null ? 'Save Changes' : 'Add Service'}
+                  {isUploading ? 'Uploading...' : (editingIndex !== null ? 'Save Changes' : 'Add Service')}
                 </button>
                 <button 
                   type="button"

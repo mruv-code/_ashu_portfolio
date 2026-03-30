@@ -7,17 +7,8 @@ const ManageSiteSettings = () => {
   const { siteSettings, updateSiteSettings } = useApp();
   const [settings, setSettings] = useState(siteSettings);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-
-  // Convert File to data URL
-  const fileToDataUrl = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,17 +16,11 @@ const ManageSiteSettings = () => {
     setMessage(null);
 
     try {
-      // Convert File objects to data URLs before saving
-      let finalSettings = { ...settings };
-      
-      if (settings.logo instanceof File) {
-        console.log('Converting logo File to data URL...');
-        const logoDataUrl = await fileToDataUrl(settings.logo);
-        finalSettings = { ...finalSettings, logo: logoDataUrl };
-      }
-
-      console.log('Saving settings:', finalSettings);
-      updateSiteSettings(finalSettings);
+      // Files are now uploaded automatically by FileUpload component
+      // Just use the settings data as-is (URLs are already uploaded)
+      console.log('Saving settings:', settings);
+      console.log('Saving settings:', settings);
+      updateSiteSettings(settings);
       setMessage({ type: 'success', text: 'Settings updated successfully!' });
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -88,17 +73,19 @@ const ManageSiteSettings = () => {
               onChange={(file) => setSettings({ ...settings, logo: file })}
               accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.svg"
               type="image"
+              onUploadStart={() => setIsUploading(true)}
+              onUploadEnd={() => setIsUploading(false)}
             />
           </div>
         </div>
 
         <button
           type="submit"
-          disabled={isSaving}
+          disabled={isSaving || isUploading}
           className="w-full bg-gold text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-yellow-500 transition-colors disabled:opacity-50"
         >
-          {isSaving ? <RefreshCw className="animate-spin" size={20} /> : <Save size={20} />}
-          {isSaving ? 'Processing...' : 'Save All Settings'}
+          {isSaving ? <RefreshCw className="animate-spin" size={20} /> : isUploading ? <RefreshCw className="animate-spin" size={20} /> : <Save size={20} />}
+          {isSaving ? 'Processing...' : isUploading ? 'Uploading...' : 'Save All Settings'}
         </button>
       </form>
     </div>
