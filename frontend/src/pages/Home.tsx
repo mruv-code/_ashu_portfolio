@@ -30,8 +30,9 @@ const VideoBackground = ({ src, className }: { src: string | File, className?: s
 };
 
 const Home = () => {
-  const { videos, pageContent, isLoading } = useApp();
+  const { videos, pageContent, blogs, isLoading } = useApp();
   const featuredVideos = videos.filter(v => v.isFeatured).slice(0, 3);
+  const latestBlogs = blogs ? [...blogs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4) : [];
   
   // Safe defaults for home content
   const homeContent = pageContent?.home || {};
@@ -237,6 +238,53 @@ const Home = () => {
             </motion.div>
           )) : (
             <div className="col-span-full text-center text-white/40">Loading testimonials...</div>
+          )}
+        </div>
+      </section>
+
+      {/* Latest Blogs Section */}
+      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <div>
+            <span className="text-gold uppercase tracking-widest text-xs font-bold mb-4 block">Latest Blogs</span>
+            <h2 className="text-4xl md:text-6xl font-serif font-bold">Latest Blog Posts</h2>
+          </div>
+          <Link to="/blog" className="text-gold hover:text-gold-light transition-colors flex items-center gap-2 uppercase tracking-widest text-sm font-bold">
+            View All Blogs <ArrowRight size={16} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {latestBlogs.length > 0 ? latestBlogs.map((blog, idx) => (
+            <motion.div
+              key={blog.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              viewport={{ once: true }}
+              className="group relative overflow-hidden bg-zinc-900 border border-white/10 rounded-2xl"
+            >
+              <div className="w-full aspect-[16/9] overflow-hidden">
+                <img
+                  src={toMediaUrl(blog.image) || ''}
+                  alt={blog.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              </div>
+              <div className="p-6">
+                <p className="text-white/40 text-xs uppercase tracking-widest mb-2">{new Date(blog.createdAt).toLocaleDateString()}</p>
+                <h3 className="text-xl font-serif font-bold mb-2">{blog.title}</h3>
+                <p className="text-white/60 text-sm leading-relaxed mb-4">
+                  {blog.description.length > 80 ? `${blog.description.slice(0, 80)}...` : blog.description}
+                </p>
+                <Link to="/blog" className="text-gold uppercase tracking-widest text-xs font-bold hover:text-gold-light">
+                  Read More
+                </Link>
+              </div>
+            </motion.div>
+          )) : (
+            <div className="col-span-full text-center text-white/40">No blogs yet. Add a blog from admin.</div>
           )}
         </div>
       </section>

@@ -593,7 +593,7 @@ app.post(`${API_URL}/api/website-data`, (req, res) => {
   console.log('  - Content-Type:', req.headers['content-type']);
   console.log('  - Body size:', JSON.stringify(req.body).length, 'characters');
   
-  const { videos, categories, inquiries, pageContent, contactInfo, siteSettings } = req.body;
+  const { videos, categories, inquiries, pageContent, contactInfo, siteSettings, blogs } = req.body;
   
   if (videos) websiteData.videos = videos;
   if (categories) websiteData.categories = categories;
@@ -601,6 +601,7 @@ app.post(`${API_URL}/api/website-data`, (req, res) => {
   if (pageContent) websiteData.pageContent = pageContent;
   if (contactInfo) websiteData.contactInfo = contactInfo;
   if (siteSettings) websiteData.siteSettings = siteSettings;
+  if (blogs) websiteData.blogs = blogs;
   
   saveDataToFile();
   
@@ -640,6 +641,21 @@ app.post(`${API_URL}/api/inquiries`, (req, res) => {
   saveDataToFile();
   websiteData.inquiries = req.body;
   res.json({ message: 'Inquiries updated', inquiries: websiteData.inquiries });
+});
+
+app.get(`${API_URL}/api/blogs`, (req, res) => {
+  res.set('Cache-Control', 'no-store, must-revalidate');
+  res.json(websiteData.blogs || []);
+});
+
+app.post(`${API_URL}/api/blogs`, (req, res) => {
+  const blogs = req.body;
+  if (!Array.isArray(blogs)) {
+    return res.status(400).json({ message: 'Invalid blogs payload, expected array' });
+  }
+  websiteData.blogs = blogs;
+  saveDataToFile();
+  res.json({ message: 'Blogs updated', blogs: websiteData.blogs });
 });
 
 app.get(`${API_URL}/api/page-content`, (req, res) => {
@@ -683,9 +699,12 @@ app.post(`${API_URL}/api/upload`, upload.single('file'), (req, res) => {
     }
 
     // Return the file URL
-    const protocol = req.protocol;
+    const forwardedProto = req.headers['x-forwarded-proto'];
+    const protoFromHeader = typeof forwardedProto === 'string' ? forwardedProto.split(',')[0].trim() : undefined;
+    const protocol = (protoFromHeader || req.protocol || 'https').toLowerCase();
+    const safeProtocol = protocol === 'http' ? 'https' : protocol;
     const host = req.get('host');
-    const fileUrl = `${protocol}://${host}/api/uploads/${req.file.filename}`;
+    const fileUrl = `${safeProtocol}://${host}/api/uploads/${req.file.filename}`;
     
     res.json({
       message: 'File uploaded successfully',

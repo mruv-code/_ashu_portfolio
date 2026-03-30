@@ -60,6 +60,14 @@ export interface PageContent {
   };
 }
 
+export interface Blog {
+  id: string;
+  title: string;
+  description: string;
+  image: string | File;
+  createdAt: string;
+}
+
 export interface ContactInfo {
   email: string;
   phone: string;

@@ -29,6 +29,7 @@ const AdminSidebar = () => {
     { name: 'Categories', path: '/admin/categories', icon: Tags },
     { name: 'Services', path: '/admin/services', icon: Briefcase },
     { name: 'Testimonials', path: '/admin/testimonials', icon: Quote },
+    { name: 'Blogs', path: '/admin/blogs', icon: FileText },
     { name: 'Contact Info', path: '/admin/contact-info', icon: Phone },
     { name: 'Page Content', path: '/admin/content', icon: FileText },
     { name: 'Site Settings', path: '/admin/site-settings', icon: Settings },

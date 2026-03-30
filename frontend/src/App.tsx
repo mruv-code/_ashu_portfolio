@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Work from './pages/Work';
 import Info from './pages/Info';
 import Contact from './pages/Contact';
+import Blog from './pages/Blog';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -18,6 +19,7 @@ import ManageVideos from './pages/admin/ManageVideos';
 import ManageCategories from './pages/admin/ManageCategories';
 import ManageServices from './pages/admin/ManageServices';
 import ManageTestimonials from './pages/admin/ManageTestimonials';
+import ManageBlogs from './pages/admin/ManageBlogs';
 import ManageContact from './pages/admin/ManageContact';
 import ManageContent from './pages/admin/ManageContent';
 import ManageSiteSettings from './pages/admin/ManageSiteSettings';
@@ -50,6 +52,7 @@ const AppContent = () => {
           <Route path="work" element={<Work />} />
           <Route path="info" element={<Info />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="blog" element={<Blog />} />
         </Route>
 
         {/* Admin Auth */}
@@ -62,6 +65,7 @@ const AppContent = () => {
           <Route path="categories" element={<ManageCategories />} />
           <Route path="services" element={<ManageServices />} />
           <Route path="testimonials" element={<ManageTestimonials />} />
+          <Route path="blogs" element={<ManageBlogs />} />
           <Route path="contact-info" element={<ManageContact />} />
           <Route path="content" element={<ManageContent />} />
           <Route path="site-settings" element={<ManageSiteSettings />} />

@@ -31,6 +31,22 @@
     { "id": "3", "name": "Social Media" }
   ],
   "inquiries": [],
+  "blogs": [
+    {
+      "id": "1",
+      "title": "Crafting the Perfect Wedding Film",
+      "description": "From pre-production to final cut, discover our step-by-step creative process for capturing wedding magic.",
+      "image": "https://images.unsplash.com/photo-1513116476489-7635e79feb27?q=80&w=1000&auto=format&fit=crop",
+      "createdAt": "2024-01-10T12:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "title": "5 Tips for Cinematic Brand Storytelling",
+      "description": "Learn how to use visuals, pacing, and music to build powerful stories for your brand videos.",
+      "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop",
+      "createdAt": "2024-02-15T15:30:00.000Z"
+    }
+  ],
   "pageContent": {
     "home": {
       "tagline": "We Don't Shoot Weddings, We Craft Stories",

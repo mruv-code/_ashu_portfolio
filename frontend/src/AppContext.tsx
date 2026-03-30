@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Video, Category, Inquiry, PageContent, ContactInfo, SiteSettings, AdminSettings } from './types';
+import { Video, Category, Blog, Inquiry, PageContent, ContactInfo, SiteSettings, AdminSettings } from './types';
 import { get, set } from 'idb-keyval';
 import { API_URL } from './config';
 
 interface AppContextType {
   videos: Video[];
   categories: Category[];
+  blogs: Blog[];
   inquiries: Inquiry[];
   pageContent: PageContent;
   contactInfo: ContactInfo;
@@ -16,6 +17,9 @@ interface AppContextType {
   deleteVideo: (id: string) => void;
   addCategory: (name: string) => void;
   deleteCategory: (id: string) => void;
+  addBlog: (blog: Omit<Blog, 'id' | 'createdAt'>) => void;
+  updateBlog: (id: string, blog: Partial<Blog>) => void;
+  deleteBlog: (id: string) => void;
   updatePageContent: (content: PageContent) => void;
   updateContactInfo: (info: ContactInfo) => void;
   updateSiteSettings: (settings: SiteSettings) => void;
@@ -80,6 +84,23 @@ const INITIAL_CATEGORIES: Category[] = [
   { id: '1', name: 'Wedding' },
   { id: '2', name: 'Commercial' },
   { id: '3', name: 'Social Media' }
+];
+
+const INITIAL_BLOGS: Blog[] = [
+  {
+    id: '1',
+    title: 'Crafting the Perfect Wedding Film',
+    description: 'From pre-production to final cut, discover our step-by-step creative process for capturing wedding magic.',
+    image: 'https://images.unsplash.com/photo-1513116476489-7635e79feb27?q=80&w=1000&auto=format&fit=crop',
+    createdAt: '2024-01-10T12:00:00.000Z'
+  },
+  {
+    id: '2',
+    title: '5 Tips for Cinematic Brand Storytelling',
+    description: 'Learn how to use visuals, pacing, and music to build powerful stories for your brand videos.',
+    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop',
+    createdAt: '2024-02-15T15:30:00.000Z'
+  }
 ];
 
 const INITIAL_CONTACT: ContactInfo = {
@@ -181,6 +202,7 @@ const pushToBackend = async (endpoint: string, method: string, data: any) => {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [videos, setVideos] = useState<Video[]>(INITIAL_VIDEOS);
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
+  const [blogs, setBlogs] = useState<Blog[]>(INITIAL_BLOGS);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [pageContent, setPageContent] = useState<PageContent>(INITIAL_CONTENT);
   const [contactInfo, setContactInfo] = useState<ContactInfo>(INITIAL_CONTACT);
@@ -207,6 +229,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (backendData && typeof backendData === 'object') {
           if (backendData.videos && Array.isArray(backendData.videos)) setVideos(backendData.videos);
           if (backendData.categories && Array.isArray(backendData.categories)) setCategories(backendData.categories);
+          if (backendData.blogs && Array.isArray(backendData.blogs)) setBlogs(backendData.blogs);
           if (backendData.inquiries && Array.isArray(backendData.inquiries)) setInquiries(backendData.inquiries);
           if (backendData.pageContent && typeof backendData.pageContent === 'object') {
             // Merge backend pageContent with INITIAL_CONTENT to ensure all required properties exist
@@ -220,6 +243,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           // Fallback to IndexedDB if backend fails
           const savedVideos = await get('bandhan_videos');
           const savedCategories = await get('bandhan_categories');
+          const savedBlogs = await get('bandhan_blogs');
           const savedInquiries = await get('bandhan_inquiries');
           const savedContent = await get('bandhan_content');
           const savedContact = await get('bandhan_contact');
@@ -228,6 +252,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           if (savedVideos) setVideos(savedVideos);
           if (savedCategories) setCategories(savedCategories);
+          if (savedBlogs) setBlogs(savedBlogs);
           if (savedInquiries) setInquiries(savedInquiries);
           if (savedContent) {
             // Merge saved content with INITIAL_CONTENT to ensure all required properties exist
@@ -265,6 +290,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (backendData && Object.keys(backendData).length > 0) {
         if (backendData.videos?.length > 0) setVideos(backendData.videos);
         if (backendData.categories?.length > 0) setCategories(backendData.categories);
+        if (backendData.blogs?.length > 0) setBlogs(backendData.blogs);
         if (backendData.inquiries?.length > 0) setInquiries(backendData.inquiries);
         if (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) setPageContent(backendData.pageContent);
         if (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) setContactInfo(backendData.contactInfo);
@@ -278,6 +304,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (backendData && Object.keys(backendData).length > 0) {
         if (backendData.videos?.length > 0) setVideos(backendData.videos);
         if (backendData.categories?.length > 0) setCategories(backendData.categories);
+        if (backendData.blogs?.length > 0) setBlogs(backendData.blogs);
         if (backendData.inquiries?.length > 0) setInquiries(backendData.inquiries);
         if (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) setPageContent(backendData.pageContent);
         if (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) setContactInfo(backendData.contactInfo);
@@ -302,6 +329,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Save to IndexedDB
         await set('bandhan_videos', videos);
         await set('bandhan_categories', categories);
+        await set('bandhan_blogs', blogs);
         await set('bandhan_inquiries', inquiries);
         await set('bandhan_content', pageContent);
         await set('bandhan_contact', contactInfo);
@@ -312,6 +340,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const syncSuccess = await pushToBackend('/api/website-data', 'POST', {
           videos,
           categories,
+          blogs,
           inquiries,
           pageContent,
           contactInfo,
@@ -326,6 +355,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (freshData && typeof freshData === 'object') {
               if (freshData.videos && Array.isArray(freshData.videos)) setVideos(freshData.videos);
               if (freshData.categories && Array.isArray(freshData.categories)) setCategories(freshData.categories);
+              if (freshData.blogs && Array.isArray(freshData.blogs)) setBlogs(freshData.blogs);
               if (freshData.inquiries && Array.isArray(freshData.inquiries)) setInquiries(freshData.inquiries);
               if (freshData.pageContent && typeof freshData.pageContent === 'object') setPageContent(freshData.pageContent);
               if (freshData.contactInfo && typeof freshData.contactInfo === 'object') setContactInfo(freshData.contactInfo);
@@ -360,6 +390,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteCategory = (id: string) => {
     setCategories(categories.filter(c => c.id !== id));
+  };
+
+  const addBlog = (blog: Omit<Blog, 'id' | 'createdAt'>) => {
+    const newBlog = {
+      ...blog,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString()
+    };
+    setBlogs([newBlog, ...blogs]);
+  };
+
+  const updateBlog = (id: string, updatedFields: Partial<Blog>) => {
+    setBlogs(blogs.map(blog => blog.id === id ? { ...blog, ...updatedFields } : blog));
+  };
+
+  const deleteBlog = (id: string) => {
+    setBlogs(blogs.filter(blog => blog.id !== id));
   };
 
   const updatePageContent = (content: PageContent) => {
@@ -398,9 +445,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   return (
     <AppContext.Provider value={{
-      videos, categories, inquiries, pageContent, contactInfo, siteSettings, adminSettings,
+      videos, categories, blogs, inquiries, pageContent, contactInfo, siteSettings, adminSettings,
       addVideo, updateVideo, deleteVideo,
       addCategory, deleteCategory,
+      addBlog, updateBlog, deleteBlog,
       updatePageContent, updateContactInfo, updateSiteSettings, updateAdminSettings, addInquiry, deleteInquiry,
       isAdmin, setIsAdmin, logout, isLoading
     }}>
