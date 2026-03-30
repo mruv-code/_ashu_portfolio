@@ -83,7 +83,6 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -525,9 +524,7 @@ const loadDataFromFile = () => {
       const fileContent = fs.readFileSync(dataFilePath, 'utf8');
       const loadedData = JSON.parse(fileContent);
       websiteData = loadedData;
-      console.log('✓ Website data loaded from file');
     } else {
-      console.log('ℹ No existing data file, will create one on first save');
     }
   } catch (error) {
     console.error('Error loading data from file:', error);
@@ -560,7 +557,6 @@ app.use(`${API_URL}/api/`, noCacheHeaders);
 
 // Handle preflight OPTIONS requests for all API routes
 app.options(`${API_URL}/api/*`, (req, res) => {
-  console.log('🔄 Handling OPTIONS preflight request for:', req.path);
   res.set('Access-Control-Allow-Origin', 'https://ashu-portfolio-frontend.vercel.app');
   res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, Expires, If-Modified-Since');
@@ -585,10 +581,6 @@ app.post(`${API_URL}/api/calendar`, (req, res) => {
 
 // Website Data APIs - Get all data
 app.get(`${API_URL}/api/website-data`, (req, res) => {
-  console.log('📤 GET /api/website-data request received');
-  console.log('  - Origin:', req.headers.origin);
-  console.log('  - User-Agent:', req.headers['user-agent']?.substring(0, 50));
-  
   res.set('Cache-Control', 'no-store, must-revalidate');
   res.set('ETag', JSON.stringify(websiteData).length.toString());
   res.json(websiteData);
@@ -602,12 +594,6 @@ app.post(`${API_URL}/api/website-data`, (req, res) => {
   console.log('  - Body size:', JSON.stringify(req.body).length, 'characters');
   
   const { videos, categories, inquiries, pageContent, contactInfo, siteSettings } = req.body;
-  console.log('  - Videos:', Array.isArray(videos) ? `${videos.length} items` : 'none');
-  console.log('  - Categories:', Array.isArray(categories) ? `${categories.length} items` : 'none');
-  console.log('  - Inquiries:', Array.isArray(inquiries) ? `${inquiries.length} items` : 'none');
-  console.log('  - PageContent:', typeof pageContent === 'object' ? 'received' : 'none');
-  console.log('  - ContactInfo:', typeof contactInfo === 'object' ? 'received' : 'none');
-  console.log('  - SiteSettings:', typeof siteSettings === 'object' ? 'received' : 'none');
   
   if (videos) websiteData.videos = videos;
   if (categories) websiteData.categories = categories;
@@ -617,7 +603,6 @@ app.post(`${API_URL}/api/website-data`, (req, res) => {
   if (siteSettings) websiteData.siteSettings = siteSettings;
   
   saveDataToFile();
-  console.log('✓ Data saved to file and memory');
   
   res.set('Cache-Control', 'no-store, must-revalidate');
   res.json({ message: 'Website data updated successfully', data: websiteData });
@@ -698,8 +683,9 @@ app.post(`${API_URL}/api/upload`, upload.single('file'), (req, res) => {
     }
 
     // Return the file URL
-    const fileUrl = `${API_URL}/uploads/${req.file.filename}`;
-    console.log('File uploaded successfully:', fileUrl);
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const fileUrl = `${protocol}://${host}/api/uploads/${req.file.filename}`;
     
     res.json({
       message: 'File uploaded successfully',
