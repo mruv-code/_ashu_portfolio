@@ -31,7 +31,7 @@ const BlogDetail = () => {
   return (
     <div className="bg-black min-h-screen">
       {/* Header with Back Button */}
-      <div className="border-b border-white/10">
+      <div className="border-b border-white/10 pt-20">
         <div className="max-w-4xl mx-auto px-6 md:px-12 py-8">
           <button
             onClick={() => navigate('/blog')}
