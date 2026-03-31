@@ -73,6 +73,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
+      'https://bandhanfilms-in.vercel.app',
       'https://ashu-portfolio-frontend.vercel.app',
       'http://localhost:5173', // Vite dev server
       'http://localhost:3000', // Alternative dev port
