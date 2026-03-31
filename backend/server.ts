@@ -560,7 +560,20 @@ app.use(`${API_URL}/api/`, noCacheHeaders);
 
 // Handle preflight OPTIONS requests for all API routes
 app.options(`${API_URL}/api/*`, (req, res) => {
-  res.set('Access-Control-Allow-Origin', 'https://ashu-portfolio-frontend.vercel.app');
+  const origin = req.headers.origin;
+  const allowedOrigins = [
+    'https://bandhanfilms-in.vercel.app',
+    'https://ashu-portfolio-frontend.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://localhost:5173',
+    'https://localhost:3000'
+  ];
+
+  if (origin && allowedOrigins.includes(origin)) {
+    res.set('Access-Control-Allow-Origin', origin);
+  }
+
   res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cache-Control, Pragma, Expires, If-Modified-Since');
   res.set('Access-Control-Allow-Credentials', 'true');
