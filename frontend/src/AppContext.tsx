@@ -225,8 +225,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           backendData = await fetchFromBackend('/api/website-data');
         }
         
+        // Check if backend data has meaningful content (not just empty arrays)
+        const hasBackendContent = backendData && typeof backendData === 'object' && (
+          (backendData.videos && backendData.videos.length > 0) ||
+          (backendData.categories && backendData.categories.length > 0) ||
+          (backendData.blogs && backendData.blogs.length > 0) ||
+          (backendData.pageContent && Object.keys(backendData.pageContent).length > 0) ||
+          (backendData.contactInfo && Object.keys(backendData.contactInfo).length > 0) ||
+          (backendData.siteSettings && Object.keys(backendData.siteSettings).length > 0)
+        );
+        
         // Use backend data if it has content
-        if (backendData && typeof backendData === 'object') {
+        if (hasBackendContent) {
           if (backendData.videos && Array.isArray(backendData.videos)) setVideos(backendData.videos);
           if (backendData.categories && Array.isArray(backendData.categories)) setCategories(backendData.categories);
           if (backendData.blogs && Array.isArray(backendData.blogs)) setBlogs(backendData.blogs);
@@ -240,7 +250,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (backendData.siteSettings && typeof backendData.siteSettings === 'object') setSiteSettings(backendData.siteSettings);
         } else {
           console.log('No valid backend data, loading from IndexedDB...');
-          // Fallback to IndexedDB if backend fails
+          // Fallback to IndexedDB if backend fails or returns empty data
           const savedVideos = await get('bandhan_videos');
           const savedCategories = await get('bandhan_categories');
           const savedBlogs = await get('bandhan_blogs');

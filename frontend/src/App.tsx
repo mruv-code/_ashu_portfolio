@@ -11,6 +11,7 @@ import Work from './pages/Work';
 import Info from './pages/Info';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
+import BlogDetail from './pages/BlogDetail';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -53,6 +54,7 @@ const AppContent = () => {
           <Route path="info" element={<Info />} />
           <Route path="contact" element={<Contact />} />
           <Route path="blog" element={<Blog />} />
+          <Route path="blog/:id" element={<BlogDetail />} />
         </Route>
 
         {/* Admin Auth */}

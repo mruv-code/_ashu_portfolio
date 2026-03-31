@@ -52,7 +52,7 @@ const Blog = () => {
                   <h2 className="text-xl md:text-2xl font-serif font-bold mb-3">{blog.title}</h2>
                   <p className="text-white/60 leading-relaxed mb-5">{blog.description}</p>
                   <Link
-                    to="/"
+                    to={`/blog/${blog.id}`}
                     className="inline-flex items-center gap-2 text-gold uppercase tracking-widest text-xs font-bold hover:text-gold-light"
                   >
                     Read More
