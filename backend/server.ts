@@ -81,10 +81,11 @@ interface IWebsiteData extends Document {
   siteSettings: any;
 }
 const WebsiteDataSchema = new Schema<IWebsiteData>({
-  videos: { type: [Schema.Types.Mixed], default: [] },
-  categories: { type: [Schema.Types.Mixed], default: [] },
-  blogs: { type: [Schema.Types.Mixed], default: [] },
-  inquiries: { type: [Schema.Types.Mixed], default: [] },
+  videos: { type: [Schema.Types.Mixed], default: [] } as any,
+  categories: { type: [Schema.Types.Mixed], default: [] } as any,
+  blogs: { type: [Schema.Types.Mixed], default: [] } as any,
+  inquiries: { type: [Schema.Types.Mixed], default: [] } as any,
+
   pageContent: { type: Schema.Types.Mixed, default: {} },
   contactInfo: { type: Schema.Types.Mixed, default: {} },
   siteSettings: { type: Schema.Types.Mixed, default: {} },
@@ -322,12 +323,10 @@ app.post(`${API_URL}/api/auth/login`, loginLimiter, async (req, res) => {
     res.json({ message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending email:", error);
-    res
-      .status(500)
-      .json({
-        message: "Failed to send OTP.",
-        details: error instanceof Error ? error.message : String(error),
-      });
+    res.status(500).json({
+      message: "Failed to send OTP.",
+      details: error instanceof Error ? error.message : String(error),
+    });
   }
 });
 
@@ -401,12 +400,10 @@ app.post(`${API_URL}/api/auth/resend-otp`, async (req, res) => {
     });
     res.json({ message: "OTP resent successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to resend OTP",
-        details: error instanceof Error ? error.message : String(error),
-      });
+    res.status(500).json({
+      message: "Failed to resend OTP",
+      details: error instanceof Error ? error.message : String(error),
+    });
   }
 });
 
@@ -445,12 +442,10 @@ app.post(`${API_URL}/api/auth/forgot-password`, async (req, res) => {
     });
     res.json({ message: "Verification code sent to your email" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to send verification code",
-        details: error instanceof Error ? error.message : String(error),
-      });
+    res.status(500).json({
+      message: "Failed to send verification code",
+      details: error instanceof Error ? error.message : String(error),
+    });
   }
 });
 
@@ -465,11 +460,9 @@ app.post(`${API_URL}/api/auth/reset-password`, async (req, res) => {
     !isValidOtp(otp) ||
     !isValidPassword(newPassword)
   )
-    return res
-      .status(400)
-      .json({
-        message: "Invalid input. Password must be at least 8 characters.",
-      });
+    return res.status(400).json({
+      message: "Invalid input. Password must be at least 8 characters.",
+    });
 
   const stored = await Otp.findOne({ email, type: "forgot" });
   if (!stored)
@@ -552,12 +545,10 @@ app.post(`${API_URL}/api/admin/request-change`, async (req, res) => {
     });
     res.json({ message: "Verification code sent to current admin email" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Failed to send verification code",
-        details: error instanceof Error ? error.message : String(error),
-      });
+    res.status(500).json({
+      message: "Failed to send verification code",
+      details: error instanceof Error ? error.message : String(error),
+    });
   }
 });
 
@@ -757,12 +748,10 @@ app.post(`${API_URL}/api/upload`, upload.single("file"), (req, res) => {
     });
   } catch (error) {
     console.error("File upload error:", error);
-    res
-      .status(500)
-      .json({
-        message: "File upload failed",
-        error: error instanceof Error ? error.message : String(error),
-      });
+    res.status(500).json({
+      message: "File upload failed",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 });
 
